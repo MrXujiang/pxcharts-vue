@@ -192,7 +192,7 @@
                       :value="item.groupKey"
                     />
 
-                    <span v-else class="group-title">{{ item.groupTitle }}11</span>
+                    <span v-else class="group-title">{{ item.groupTitle }}</span>
                     <span class="group-count">({{ item.groupCount }})</span>
                   </div>
                 </template>
