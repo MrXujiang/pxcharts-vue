@@ -1,0 +1,44 @@
+.layout-toolbar {
+    height: 48px;
+    padding: 0 12px;
+    background: #fff;
+}
+
+:deep(.t-button--variant-text) {
+    padding: 0 8px;
+}
+
+:deep(.t-divider--vertical) {
+    margin: 0 4px;
+}
+
+:deep(.t-button .t-icon + .t-button__text:not(:empty)) {
+    margin-left: 4px;
+}
+
+.group-content {
+    width: 320px;
+    padding: 10px;
+}
+
+.row-height-options {
+    min-width: 120px;
+    padding: 4px 0;
+
+    .row-height-item {
+        padding: 8px 12px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        border-radius: 3px;
+
+        &:hover {
+            background-color: #f3f4f5;
+        }
+
+        &--active {
+            background-color: #e7f1ff;
+            color: #0052d9;
+            font-weight: 500;
+        }
+    }
+}

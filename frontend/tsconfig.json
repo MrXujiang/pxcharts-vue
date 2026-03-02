@@ -1,0 +1,28 @@
+{
+  "compilerOptions": {
+    "target": "ES2020",
+    "module": "ES2020",
+    "moduleResolution": "node",
+    "noImplicitAny": false, // 解决 JSX 元素隐式具有类型 “any“，因为不存在接口 “JSX.IntrinsicElements“ 是否在表达式和声明上有隐含的any类型时报错
+    "strict": true,
+    "jsx": "preserve", // ✅ 必须设置为 "preserve"
+    "jsxImportSource": "vue", // ✅ 启用 Vue 3 的 JSX 支持
+    "sourceMap": true,
+    "resolveJsonModule": true,
+    "esModuleInterop": true,
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["src/*"]
+    },
+    "lib": ["dom", "dom.iterable", "esnext", "esnext.asynciterable"],
+    "skipLibCheck": true
+  },
+  "include": [
+    "src/**/*",
+    "src/**/*.vue",
+    "src/**/*.tsx",
+    "./auto-imports.d.ts",
+    "./components.d.ts"
+  ],
+  "exclude": ["node_modules"]
+}

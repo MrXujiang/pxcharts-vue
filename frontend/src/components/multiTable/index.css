@@ -1,0 +1,962 @@
+/* 多维表格样式 */
+.virtual-table {
+  width: 100%;
+  height: calc(100vh - 150px);
+  /* height: 100%; */
+  display: flex;
+  flex-direction: column;
+  background: #fff;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+/* 工具栏 */
+.table-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 20px;
+  border-bottom: 1px solid #e1e5e9;
+  background: #f8f9fa;
+}
+
+.toolbar-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.toolbar-left h3 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: #2c3e50;
+}
+
+.toolbar-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.batch-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  background: #e3f2fd;
+  border-radius: 6px;
+  border: 1px solid #bbdefb;
+}
+
+.selected-count {
+  font-size: 14px;
+  color: #1976d2;
+  font-weight: 500;
+}
+
+.btn-danger {
+  background: #f44336;
+  color: white;
+  border-color: #f44336;
+}
+
+.btn-danger:hover {
+  background: #d32f2f;
+  border-color: #d32f2f;
+}
+
+/* 配置选项样式 */
+.config-option {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 14px;
+  color: #374151;
+  cursor: pointer;
+  user-select: none;
+}
+
+.config-option input[type='checkbox'] {
+  cursor: pointer;
+}
+
+.btn {
+  padding: 8px 16px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  background: white;
+  color: #374151;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.2s;
+}
+
+.btn:hover {
+  background: #f3f4f6;
+  border-color: #9ca3af;
+}
+
+.group-select {
+  padding: 8px 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  background: white;
+  font-size: 14px;
+}
+
+/* 表格容器 */
+.table-wrapper {
+  flex: 1;
+  position: relative;
+  /* height: calc(100vh - 56px); */
+  height: auto;
+  min-height: 400px;
+  padding: 8px;
+}
+
+/* 表头区域 */
+.table-header-wrapper {
+  position: relative;
+  height: 32px;
+  z-index: 10;
+  /* border-top: 1px solid #e1e5e9;
+  border-right: 1px solid #e1e5e9;
+  border-bottom: 1px solid #e1e5e9; */
+  border-radius: 8px;
+  box-sizing: border-box;
+}
+
+/* 固定表头时的sticky样式 */
+.table-header-wrapper.header-sticky {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+/* 固定列表头区域 */
+.fixed-header-section {
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 32px;
+  background: #f8f9fa;
+  z-index: 12;
+  box-shadow: 2px 0 4px rgba(0, 0, 0, 0.1);
+  transform: none !important;
+  /* 强制不受transform影响 */
+}
+
+/* 可滚动列表头区域 */
+.scrollable-header-section {
+  position: absolute;
+  top: 0;
+  height: 32px;
+  z-index: 11;
+  overflow: hidden;
+  /* 移除transform，让表头与数据列使用相同的滚动机制 */
+}
+
+.scrollable-header-container {
+  position: relative;
+  height: 100%;
+  width: max-content;
+  min-width: 100%;
+}
+
+/* 可滚动列数据容器 */
+.scrollable-cells-container {
+  position: relative;
+  height: 100%;
+  width: max-content;
+  min-width: 100%;
+}
+
+/* 表格主体容器 */
+.table-body-wrapper {
+  position: relative;
+  height: calc(100% - 32px);
+  overflow: hidden;
+}
+
+/* 表格主体容器 - 内容容器 */
+.table-container {
+  position: absolute;
+  left: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  height: 100%;
+  overflow: auto;
+  padding-left: 0;
+}
+
+/* 固定列数据区域 */
+.fixed-columns-wrapper {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  z-index: 10;
+  background: white;
+  flex-shrink: 0;
+  pointer-events: auto;
+  /* box-shadow: -2px 0 4px rgba(0, 0, 0, 0.1); */
+  /* border-right: 1px solid #e8eaec; */
+}
+
+.fixed-columns-container {
+  height: 100%;
+  overflow-y: auto;
+  /* 允许固定列纵向滚动 */
+  overflow-x: hidden;
+  /* 禁用横向滚动 */
+  width: 100%;
+  /* 隐藏滚动条 */
+  scrollbar-width: none;
+  /* Firefox */
+  -ms-overflow-style: none;
+  /* IE 和 Edge */
+}
+
+/* 隐藏 WebKit 浏览器的滚动条 */
+.fixed-columns-container::-webkit-scrollbar {
+  display: none;
+}
+
+.fixed-virtual-body {
+  position: relative;
+  background: white;
+  width: 100%;
+}
+
+/* 固定列行样式 */
+.fixed-row {
+  position: absolute;
+  left: 0;
+  display: flex;
+  align-items: center;
+  background: white;
+  transition: background-color 0.1s;
+  pointer-events: auto;
+  /* 移除底部边框以避免与单元格边框重合 */
+}
+
+.fixed-row:hover {
+  background: inherit;
+}
+
+.fixed-row.row-selected {
+  background: #e3f2fd !important;
+}
+
+.fixed-row.row-group-header {
+  margin-top: 16px;
+  background: #ffffff;
+  font-weight: 600;
+  border: 1px solid #e1e5e9;
+  border-bottom: none;
+  border-radius: 8px 0 0 0px;
+}
+
+/* 表格头部 */
+.table-header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: #f8f9fa;
+  border-bottom: 2px solid #e1e5e9;
+  height: 50px;
+  display: block;
+  width: 100%;
+  min-width: fit-content;
+  position: relative;
+}
+
+.header-selector input[type='checkbox'] {
+  cursor: pointer;
+}
+
+/* 固定列单元格样式 */
+.fixed-cell {
+  position: absolute;
+  background: #fafafa;
+  border-right: 1px solid #e1e5e9;
+  /* 只设置右侧和顶部边框，避免与相邻单元格底部边框重合 */
+  border-top: 1px solid #e1e5e9;
+  z-index: 10;
+  transform: none !important;
+  will-change: auto;
+  pointer-events: auto;
+  /* 允许固定列单元格接收事件 */
+  transition: background-color 0.2s;
+}
+
+/* 当行内任意单元格悬停时，整行单元格高亮 */
+.fixed-row.row-hover .fixed-cell:not(.add-column-cell) {
+  background: #f4f4f6 !important;
+}
+
+/* 固定列头样式 */
+.fixed-column-header {
+  position: sticky;
+  z-index: 13;
+  box-shadow: 2px 0 -2px rgba(0, 0, 0, 0.1);
+}
+
+.header-selector {
+  position: sticky;
+  left: 0;
+  top: 0;
+  width: 40px;
+  height: 32px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-right: 1px solid #e1e5e9;
+  border-left: 1px solid #e1e5e9;
+  border-top: 1px solid #e1e5e9;
+  border-bottom: 1px solid #e1e5e9;
+  background: #fafafa;
+  z-index: 14;
+  border-radius: 8px 0 0 0px;
+}
+
+/* 可滚动列单元格 */
+.scrollable-cell {
+  background: white;
+  border-right: 1px solid #e1e5e9;
+  /* 只设置右侧和顶部边框，避免与相邻单元格底部边框重合 */
+  border-top: 1px solid #e1e5e9;
+  transition: background-color 0.2s;
+}
+
+/* 当行内任意单元格悬停时，整行单元格高亮 */
+.table-row.row-hover .scrollable-cell:not(.add-column-cell) {
+  background: #e3f2fd !important;
+}
+/* 分组模式下的边框调整 */
+.table-row.row-group-header .scrollable-cell {
+  border-top: 1px solid #e1e5e9;
+  border-bottom: 1px solid #e1e5e9;
+}
+
+.fixed-row.row-group-header .fixed-cell {
+  border-top: 1px solid #e1e5e9;
+  border-bottom: 1px solid #e1e5e9;
+}
+
+/* 分组模式下数据行单元格上边框 */
+.table-row:not(.row-group-header) .table-cell,
+.table-row:not(.row-group-header) .scrollable-cell {
+  border-top: 1px solid #e1e5e9;
+}
+
+.fixed-row:not(.row-group-header) .fixed-cell {
+  border-top: 1px solid #e1e5e9;
+}
+
+/* 分组头部特殊处理 */
+.table-row.row-group-header .scrollable-cell {
+  border-top: 1px solid #e1e5e9;
+  border-bottom: 1px solid #e1e5e9;
+}
+
+.fixed-row.row-group-header .fixed-cell {
+  border-top: 1px solid #e1e5e9;
+  border-bottom: 1px solid #e1e5e9;
+}
+
+/* 通用列头样式 */
+.column-header {
+  position: absolute;
+  top: 0;
+  height: 32px;
+  border-right: 1px solid #e1e5e9;
+  /* border-bottom: 1px solid #e1e5e9; */
+  border-top: 1px solid #e1e5e9;
+  background: #ffffff;
+  display: flex;
+  align-items: center;
+  cursor: move;
+  user-select: none;
+  transition: background-color 0.2s;
+  box-sizing: border-box;
+}
+
+.isGroupedAddedColumn {
+  border-bottom: 1px solid #e1e5e9 !important;
+  border-radius: 0 8px 8px 0 !important;
+}
+
+/* 添加列表头  */
+.add-column-header {
+  background: #fff;
+  border-radius: 0 8px 0 0;
+  cursor: default;
+  border-bottom: none;
+}
+
+.add-column-header:hover {
+  background: transparent !important;
+}
+
+/* 添加列单元格 - 无边框 */
+.add-column-cell {
+  border-right: none !important;
+  border-left: none !important;
+  border-top: none !important;
+  border-bottom: none !important;
+  background: transparent !important;
+  cursor: default;
+}
+
+.add-column-cell:hover {
+  background: transparent !important;
+}
+
+/* 分组内的添加列单元格 */
+.table-row.group-member .add-column-cell {
+  border-right: none !important;
+  border-left: none !important;
+  border-top: none !important;
+  border-bottom: none !important;
+}
+
+.table-row.group-last-row .add-column-cell {
+  border-bottom: none !important;
+}
+
+.column-header:hover {
+  background: #e9ecef;
+}
+
+.scrollable-column-header {
+  z-index: 12;
+}
+
+.header-content {
+  flex: 1;
+  padding: 0 12px;
+  display: flex;
+  gap: 4px;
+  align-items: center;
+}
+.header-icon {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+}
+
+.header-content svg {
+  font-size: 14px;
+}
+.header-title {
+  font-weight: 500;
+  font-size: 13px;
+  color: #2c3e50;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.header-type {
+  font-size: 12px;
+  color: #6c757d;
+  margin-top: 2px;
+}
+
+.column-resizer {
+  position: absolute;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  width: 4px;
+  cursor: col-resize;
+  background: transparent;
+  z-index: 10;
+}
+
+.column-resizer:hover {
+  background: #007bff;
+}
+
+/* 表格主体 */
+.table-body {
+  position: relative;
+  background: white;
+  width: 100%;
+  overflow: hidden;
+  margin-right: 8px;
+}
+
+.table-row {
+  position: absolute;
+  left: 0;
+  right: 0;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  border-right: 1px solid #e1e5e9;
+  background: white;
+  transition: background-color 0.1s;
+  min-height: 32px;
+  /* 移除底部边框以避免与单元格边框重合 */
+}
+
+.table-row:hover {
+  background: inherit;
+}
+/* 行选中样式 */
+.table-row.row-selected {
+  /* background: #e3f2fd !important; */
+}
+
+.table-row.row-group-header {
+  margin-top: 16px;
+  background: #ffffff;
+  font-weight: 600;
+  border-left: none;
+  border-top: 1px solid #e1e5e9;
+  border-radius: 0 8px 0 0;
+}
+
+/* 分组间距视觉效果 */
+.group-spacing {
+  margin-top: 8px;
+  position: relative;
+}
+
+/* 行选择器 */
+.row-selector {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 40px;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-right: 1px solid #e1e5e9;
+  border-left: 1px solid #e1e5e9;
+  background: #fafafa;
+  z-index: 6;
+}
+
+.row-selector input[type='checkbox'] {
+  cursor: pointer;
+  z-index: 7;
+  pointer-events: auto;
+}
+
+/* 分组头部 */
+.group-header-content {
+  display: flex;
+  align-items: center;
+  padding: 0 8px;
+  width: 100%;
+  height: 100%;
+}
+.icon {
+  color: #6e7286;
+  font-size: 16px;
+}
+
+/* 分组内容区域边框 */
+.group-content {
+  border-left: 2px solid #007bff;
+  border-right: 2px solid #007bff;
+  border-bottom: 2px solid #007bff;
+  margin-bottom: 8px;
+  border-bottom-left-radius: 4px;
+  border-bottom-right-radius: 4px;
+}
+
+/* 分组添加行特殊处理 */
+.table-row.is-add-row {
+  border-bottom: 1px solid #e1e5e9;
+  border-radius: 0 0 8px 0;
+}
+
+.fixed-row.is-add-row {
+  border: 1px solid #e1e5e9;
+  border-radius: 0 0 0 8px;
+}
+
+.table-row.is-add-row .table-cell,
+.table-row.is-add-row .scrollable-cell {
+  border-top: none;
+  border-bottom: none;
+  border-radius: 0 0 8px 0;
+}
+
+.fixed-row.is-add-row .fixed-cell {
+  border-top: none;
+  border-bottom: none;
+}
+
+/* 分组内行的边框调整 */
+.table-row.group-member {
+  border-left: 1px solid #e1e5e9;
+  border-right: 1px solid #e1e5e9;
+  margin-left: 0;
+  margin-right: 0;
+}
+
+.fixed-row.group-member {
+  border-left: 1px solid #e1e5e9;
+  border-right: 1px solid #e1e5e9;
+  margin-left: 0;
+  margin-right: 0;
+}
+
+/* 分组容器样式 */
+.group-container {
+  border: 2px solid #007bff;
+  border-radius: 6px;
+  margin: 8px 0;
+  overflow: hidden;
+  background: #ffffff;
+  box-shadow: 0 2px 4px rgba(0, 123, 255, 0.1);
+}
+
+/* 表格第一行添加顶部边框 */
+.table-row:first-child .table-cell,
+.table-row:first-child .scrollable-cell {
+  border-top: 1px solid #e1e5e9;
+}
+
+.fixed-row:first-child .fixed-cell {
+  border-top: 1px solid #e1e5e9;
+}
+
+/* 添加行样式 */
+.table-row.is-add-row,
+.fixed-row.is-add-row {
+  will-change: transform; /* 提前告知浏览器 transform 会变化 */
+  transition: none !important; /* 强制取消任何过渡效果 */
+  background: #ffffff !important;
+}
+
+.table-row.is-add-row .table-cell,
+.table-row.is-add-row .scrollable-cell,
+.fixed-row.is-add-row .fixed-cell {
+  background: none;
+  justify-content: center;
+  align-items: center;
+  font-weight: bold;
+  color: #1976d2;
+  cursor: pointer;
+}
+
+/* .table-row.is-add-row:hover,
+.fixed-row.is-add-row:hover {
+  background: #e3f2fd !important;
+} */
+
+.table-row.is-add-row .table-cell:hover,
+.table-row.is-add-row .scrollable-cell:hover,
+.fixed-row.is-add-row .fixed-cell:hover {
+  background: #f4f4f6 !important;
+}
+
+.is-add-row-cell {
+  justify-content: center;
+  align-items: center;
+  font-weight: bold;
+  color: #1976d2;
+  cursor: pointer;
+  border-radius: 0 0 0 8px;
+}
+
+.is-add-row-cell:hover {
+  background: #e3f2fd !important;
+}
+
+/* 分组标题背景 */
+.group-container .row-group-header {
+  border-top: none;
+  border-left: none;
+  border-right: none;
+  margin-top: 0;
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  border-bottom: 1px solid #dee2e6;
+}
+
+/* 分组内容行 */
+.group-container .table-row:not(.row-group-header) {
+  border-left: none;
+  border-right: none;
+}
+
+.group-container .fixed-row:not(.row-group-header) {
+  border-left: none;
+  border-right: none;
+}
+
+.group-toggle {
+  background: none;
+  border: none;
+  font-size: 12px;
+  cursor: pointer;
+  margin-right: 8px;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.group-title {
+  font-weight: 600;
+  color: #495057;
+  font-size: 12px;
+}
+
+.group-count {
+  margin-left: 8px;
+  color: #6c757d;
+  font-size: 12px;
+}
+
+/* 表格单元格 */
+.table-cell {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  border-right: 1px solid #e1e5e9;
+  /* 只设置右侧和顶部边框，避免与相邻单元格底部边框重合 */
+  border-top: 1px solid #e1e5e9;
+  display: flex;
+  align-items: center;
+  padding: 0 12px;
+  cursor: pointer;
+  background: white;
+  overflow: hidden;
+  box-sizing: border-box;
+  transition: background-color 0.2s;
+}
+
+/* 添加列单元格 - 无边框 */
+.add-column-cell {
+  border-right: none !important;
+  border-left: none !important;
+  border-top: none !important;
+  border-bottom: none !important;
+  background: transparent !important;
+  cursor: default;
+}
+
+.add-column-cell:hover {
+  background: transparent !important;
+}
+
+/* 当行内任意单元格悬停时，整行单元格高亮 */
+.table-row.row-hover .table-cell:not(.add-column-cell) {
+  background: #f4f4f6 !important;
+}
+
+.fixed-row.row-hover .table-cell {
+  background: #f4f4f6 !important;
+}
+
+.cell-content {
+  width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 14px;
+  color: #2c3e50;
+}
+
+.cell-editor {
+  width: 100%;
+  border: 2px solid #007bff;
+  border-radius: 4px;
+  padding: 4px 8px;
+  font-size: 14px;
+  outline: none;
+  background: white;
+  z-index: 50;
+}
+
+/* 性能统计 */
+.performance-stats {
+  display: flex;
+  gap: 20px;
+  padding: 8px 20px;
+  background: #f8f9fa;
+  border-top: 1px solid #e1e5e9;
+  font-size: 12px;
+  color: #6c757d;
+}
+
+/* 拖拽状态 */
+/* .column-header.drag-over {
+  background: #cce5ff;
+  border-left: 3px solid #007bff;
+} */
+
+/* .table-row.dragging {
+  opacity: 0.6;
+  background: #e3f2fd;
+  transform: scale(0.98) rotate(1deg);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+  border-radius: 4px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  z-index: 1000;
+  position: relative;
+} */
+
+/* 插入指示器 */
+.drop-indicator {
+  position: absolute;
+  left: 0;
+  height: 3px;
+  background: linear-gradient(90deg, #007bff, #0056b3);
+  border-radius: 2px;
+  z-index: 1000;
+  pointer-events: none;
+  box-shadow: 0 0 8px rgba(0, 123, 255, 0.4);
+  animation: pulse 1s infinite;
+  width: 100%;
+}
+
+@keyframes pulse {
+  0% {
+    opacity: 0.7;
+  }
+
+  50% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: 0.7;
+  }
+}
+
+.table-row.drag-over {
+  border-top: 2px solid #007bff;
+  background: #f0f8ff;
+  transform: scale(1.01);
+  transition: all 0.2s ease;
+}
+
+.table-row:not(.row-group-header) {
+  cursor: grab;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.table-row:not(.row-group-header):hover {
+  transform: translateY(-1px);
+}
+
+.table-row:not(.row-group-header):active {
+  cursor: grabbing;
+}
+
+/* 跨分组拖拽效果 */
+.row-group-header.drag-over {
+  background: #e8f5e8 !important;
+  border: 2px dashed #4caf50;
+  transform: scale(1.02);
+  transition: all 0.3s ease;
+  border-radius: 4px;
+}
+
+.row-group-header.drag-over .group-title {
+  color: #2e7d32;
+  font-weight: bold;
+}
+
+/* 拖拽提示 */
+.table-row.cross-group-target {
+  background: linear-gradient(90deg, #fff3e0, #ffecb3);
+  border-left: 4px solid #ff9800;
+  transform: translateX(4px);
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 8px rgba(255, 152, 0, 0.2);
+}
+
+.table-row.same-group-target {
+  background: linear-gradient(90deg, #e3f2fd, #bbdefb);
+  border-left: 4px solid #2196f3;
+  transform: translateX(4px);
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 8px rgba(33, 150, 243, 0.2);
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+  .toolbar-left,
+  .toolbar-right {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .table-toolbar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .performance-stats {
+    flex-direction: column;
+    gap: 4px;
+  }
+}
+
+/* 滚动条样式 */
+.table-container::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.table-container::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+.table-container::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 4px;
+}
+
+.table-container::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8;
+}
+
+/* 加载动画 */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* 此段代码会导致第一行闪烁*/
+/*.table-row {*/
+/*  animation: fadeIn 0.15s ease-out;*/
+/*}*/
+
+/* 高亮效果 */
+.table-row.highlighted {
+  background: #fff3cd;
+  border-color: #ffeaa7;
+}
+
+/* 虚拟滚动优化 */
+.table-body {
+  will-change: transform;
+}
+
+.table-row {
+  will-change: transform;
+  transform: translateZ(0);
+}

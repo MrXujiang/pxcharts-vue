@@ -1,0 +1,49 @@
+.mt-sidebar {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+
+    .mt-sidebar-toolbar {
+        height: 32px;
+
+        .toolbar-title {
+            font-size: 14px;
+            font-weight: 600;
+            line-height: 16px;
+            color: #000;
+            flex: 0 0 auto;
+        }
+
+        .toolbar-tools {
+            gap: 4px;
+
+            .t-button--variant-text {
+                color: rgb(110, 114, 134);
+
+                svg {
+                    font-size: 18px;
+                }
+            }
+        }
+
+        .search-container {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+    }
+}
+
+
+.t-tree__item--visible:hover {
+    .hide {
+        opacity: 1;
+    }
+}
+
+
+.hide {
+    opacity: 0;
+    transition: opacity 0.2s;
+}

@@ -1,0 +1,649 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Doc Space API",
+    "description": "文档空间管理系统API接口文档",
+    "version": "1.0.0",
+    "contact": {
+      "name": "API Support",
+      "email": "support@docspace.com"
+    }
+  },
+  "servers": [
+    {
+      "url": "http://localhost:8080/api",
+      "description": "开发环境"
+    },
+    {
+      "url": "https://api.docspace.com",
+      "description": "生产环境"
+    }
+  ],
+  "tags": [
+    {
+      "name": "系统",
+      "description": "系统相关接口"
+    },
+    {
+      "name": "认证",
+      "description": "用户认证相关接口"
+    },
+    {
+      "name": "用户管理",
+      "description": "用户信息管理接口"
+    },
+    {
+      "name": "文档管理",
+      "description": "文档相关接口"
+    }
+  ],
+  "paths": {
+    "/health": {
+      "get": {
+        "tags": ["系统"],
+        "summary": "健康检查",
+        "description": "检查服务器运行状态",
+        "operationId": "healthCheck",
+        "responses": {
+          "200": {
+            "description": "服务器运行正常",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "ok"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Server is running"
+                    },
+                    "data": {
+                      "type": "string",
+                      "example": "2023-12-01T10:30:00Z"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/public/auth/register": {
+      "post": {
+        "tags": ["认证"],
+        "summary": "用户注册",
+        "description": "创建新用户账户",
+        "operationId": "registerUser",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateUserRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "注册成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SuccessResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "请求参数错误",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/public/auth/login": {
+      "post": {
+        "tags": ["认证"],
+        "summary": "用户登录",
+        "description": "用户登录获取访问令牌",
+        "operationId": "loginUser",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "登录成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/SuccessResponse"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "$ref": "#/components/schemas/LoginResponse"
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "认证失败",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/public/auth/refresh": {
+      "post": {
+        "tags": ["认证"],
+        "summary": "刷新令牌",
+        "description": "刷新访问令牌",
+        "operationId": "refreshToken",
+        "responses": {
+          "200": {
+            "description": "令牌刷新成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SuccessResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/auth/logout": {
+      "post": {
+        "tags": ["认证"],
+        "summary": "用户登出",
+        "description": "用户登出，使令牌失效",
+        "operationId": "logoutUser",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "登出成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SuccessResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "未授权",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/user/{id}": {
+      "get": {
+        "tags": ["用户管理"],
+        "summary": "获取用户信息",
+        "description": "根据用户ID获取用户详细信息",
+        "operationId": "getUser",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "用户ID",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "获取成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/SuccessResponse"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "$ref": "#/components/schemas/UserResponse"
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "未授权",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "用户不存在",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": ["用户管理"],
+        "summary": "更新用户信息",
+        "description": "更新用户基本信息",
+        "operationId": "updateUser",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "用户ID",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateUserRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "更新成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/SuccessResponse"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "$ref": "#/components/schemas/UserResponse"
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "请求参数错误",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "未授权",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/user/password": {
+      "patch": {
+        "tags": ["用户管理"],
+        "summary": "修改密码",
+        "description": "修改用户密码",
+        "operationId": "changePassword",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ChangePasswordRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "密码修改成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SuccessResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "请求参数错误",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "未授权",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/public/docs": {
+      "get": {
+        "tags": ["文档管理"],
+        "summary": "获取文档信息",
+        "description": "根据文档ID获取文档信息",
+        "operationId": "getDoc",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "query",
+            "required": false,
+            "description": "文档ID",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "获取成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SuccessResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "BearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT",
+        "description": "JWT访问令牌，格式：Bearer {token}"
+      }
+    },
+    "schemas": {
+      "CreateUserRequest": {
+        "type": "object",
+        "required": ["username", "email", "password"],
+        "properties": {
+          "username": {
+            "type": "string",
+            "minLength": 3,
+            "maxLength": 50,
+            "description": "用户名",
+            "example": "john_doe"
+          },
+          "email": {
+            "type": "string",
+            "format": "email",
+            "description": "邮箱地址",
+            "example": "john@example.com"
+          },
+          "password": {
+            "type": "string",
+            "minLength": 6,
+            "description": "密码",
+            "example": "password123"
+          },
+          "nickname": {
+            "type": "string",
+            "description": "昵称",
+            "example": "John Doe"
+          }
+        }
+      },
+      "UpdateUserRequest": {
+        "type": "object",
+        "properties": {
+          "nickname": {
+            "type": "string",
+            "description": "昵称",
+            "example": "John Doe"
+          },
+          "avatar": {
+            "type": "string",
+            "description": "头像URL",
+            "example": "https://example.com/avatar.jpg"
+          }
+        }
+      },
+      "LoginRequest": {
+        "type": "object",
+        "required": ["username", "password"],
+        "properties": {
+          "username": {
+            "type": "string",
+            "description": "用户名或邮箱",
+            "example": "john_doe"
+          },
+          "password": {
+            "type": "string",
+            "description": "密码",
+            "example": "password123"
+          }
+        }
+      },
+      "LoginResponse": {
+        "type": "object",
+        "properties": {
+          "token": {
+            "type": "string",
+            "description": "JWT访问令牌",
+            "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+          },
+          "userInfo": {
+            "$ref": "#/components/schemas/UserResponse"
+          }
+        }
+      },
+      "UserResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "用户ID",
+            "example": "123e4567-e89b-12d3-a456-426614174000"
+          },
+          "username": {
+            "type": "string",
+            "description": "用户名",
+            "example": "john_doe"
+          },
+          "email": {
+            "type": "string",
+            "format": "email",
+            "description": "邮箱地址",
+            "example": "john@example.com"
+          },
+          "nickname": {
+            "type": "string",
+            "description": "昵称",
+            "example": "John Doe"
+          },
+          "avatar": {
+            "type": "string",
+            "description": "头像URL",
+            "example": "https://example.com/avatar.jpg"
+          },
+          "status": {
+            "type": "integer",
+            "description": "用户状态",
+            "example": 1
+          },
+          "lastLoginAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "最后登录时间",
+            "example": "2023-12-01T10:30:00Z"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "创建时间",
+            "example": "2023-12-01T10:00:00Z"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "更新时间",
+            "example": "2023-12-01T10:30:00Z"
+          }
+        }
+      },
+      "ChangePasswordRequest": {
+        "type": "object",
+        "required": ["old_password", "new_password"],
+        "properties": {
+          "old_password": {
+            "type": "string",
+            "description": "原密码",
+            "example": "oldpassword123"
+          },
+          "new_password": {
+            "type": "string",
+            "minLength": 6,
+            "description": "新密码",
+            "example": "newpassword123"
+          }
+        }
+      },
+      "SuccessResponse": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "integer",
+            "description": "响应状态码",
+            "example": 200
+          },
+          "message": {
+            "type": "string",
+            "description": "响应消息",
+            "example": "success"
+          },
+          "data": {
+            "type": "object",
+            "description": "响应数据"
+          }
+        }
+      },
+      "ErrorResponse": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "integer",
+            "description": "错误状态码",
+            "example": 400
+          },
+          "message": {
+            "type": "string",
+            "description": "错误消息",
+            "example": "请求参数错误"
+          },
+          "error": {
+            "type": "string",
+            "description": "详细错误信息",
+            "example": "用户名不能为空"
+          }
+        }
+      }
+    }
+  }
+}

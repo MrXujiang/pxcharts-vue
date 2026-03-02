@@ -1,0 +1,42 @@
+.mt-container {
+    height: 100vh;
+    background-color: #f8f9fc;
+
+    .container {
+        height: 100%;
+        display: flex;
+        flex: 1 1 0%;
+        overflow: hidden;
+        flex: 1;
+
+        .hide {
+            display: none;
+            transition: all 0.3s ease-in-out;
+        }
+
+        .left {
+            padding: 8px;
+            flex-shrink: 0;
+            border-right-width: 1px;
+        }
+
+        .segmentation {
+            width: 2px;
+            background: #dee0e3;
+            cursor: col-resize;
+            flex-shrink: 0;
+        }
+
+        .segmentation:hover {
+            width: 2px;
+            background: #0052d9;
+        }
+        
+        .w-100 {
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+            overflow: hidden;
+        }
+    }
+}

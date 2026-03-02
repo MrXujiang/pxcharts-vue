@@ -1,0 +1,13 @@
+# Binaries for programs and plugins
+*.log
+
+
+*.DS_Store
+
+tmp
+/vendor
+# IDE configs
+.idea
+.vscode
+
+*.rdb

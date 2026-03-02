@@ -1,0 +1,89 @@
+.fieldPop {
+    width: 260px;
+
+    .search {
+        padding: 6px 0;
+        border-bottom: 1px solid #dcdfe6;
+        margin-bottom: 6px;
+
+    }
+
+    .field-item {
+        padding: 0 6px;
+        height: 32px;
+        line-height: 32px;
+        font-size: 16px;
+        display: flex;
+        gap: 6px;
+        border-radius: 4px;
+
+        .item-content {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            min-width: 0; // 允许 flex 项目收缩到内容宽度以下
+
+            .field-icon {
+                width: 16px;
+                height: 16px;
+                flex-shrink: 0;
+            }
+
+            .field-label {
+                font-size: 12px;
+                font-weight: 500;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+                flex-shrink: 1; // 允许收缩
+                flex-grow: 1; // 占据可用空间
+            }
+
+            svg {
+                font-size: 16px;
+                flex-shrink: 0; // 防止图标被压缩
+            }
+        }
+
+        .move-handle {
+            cursor: grab;
+            user-select: none;
+            width: 16px;
+            height: 100%;
+            flex-shrink: 0; // 防止拖拽手柄被压缩
+        }
+    }
+
+    .no-fixed-fields {
+        max-height: 420px;
+        overflow-y: auto;
+    }
+
+    .field-item:hover,
+    .footer:hover {
+        background-color: #ecedf1;
+    }
+
+    .footer {
+        height: 32px;
+        line-height: 32px;
+        font-size: 16px;
+        padding: 4px 16px;
+        border-radius: 4px;
+    }
+
+    svg {
+        color: #6e7286;
+    }
+}
+
+.sortable-ghost {
+    opacity: 0.5;
+    background: #e9ecef;
+    border: 1px dashed #0052d9;
+}
+
+
+:deep(.t-divider) {
+    margin: 6px 0;
+}

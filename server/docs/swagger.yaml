@@ -1,0 +1,4724 @@
+basePath: /api
+definitions:
+  constants.ProjectRole:
+    enum:
+    - owner
+    - admin
+    - reader
+    - editor
+    type: string
+    x-enum-varnames:
+    - ProjectActionOwner
+    - ProjectActionAdmin
+    - ProjectActionReader
+    - ProjectActionEditor
+  constants.QueryProjectType:
+    enum:
+    - 1
+    - 2
+    - 3
+    - 4
+    type: integer
+    x-enum-varnames:
+    - QueryProjectRecently
+    - QueryProjectCreated
+    - QueryProjectShared
+    - QueryProjectFavorite
+  constants.ShareRange:
+    enum:
+    - 1
+    - 2
+    - 3
+    type: integer
+    x-enum-comments:
+      ShareRangePrivate: 仅协作者可见
+      ShareRangePublic: 互联网公开
+      ShareRangeTeam: 团队内公开
+    x-enum-descriptions:
+    - 仅协作者可见
+    - 互联网公开
+    - 团队内公开
+    x-enum-varnames:
+    - ShareRangePrivate
+    - ShareRangePublic
+    - ShareRangeTeam
+  constants.TeamIdentity:
+    enum:
+    - creator
+    - manager
+    - member
+    type: string
+    x-enum-varnames:
+    - TeamIdentityCreator
+    - TeamIdentityManager
+    - TeamIdentityMember
+  constants.UserIdentity:
+    enum:
+    - 1
+    - 2
+    - 3
+    format: int32
+    type: integer
+    x-enum-varnames:
+    - UserIdentityBasic
+    - UserIdentityPro
+    - UserIdentityFlagship
+  middleware.Response:
+    description: 统一响应结构
+    properties:
+      data:
+        description: 响应数据
+      msg:
+        description: 响应消息
+        type: string
+      state:
+        description: 响应状态码
+        type: integer
+    type: object
+  model.AddMemberReq:
+    properties:
+      identity:
+        $ref: '#/definitions/constants.TeamIdentity'
+      teamId:
+        type: string
+      userId:
+        type: string
+    required:
+    - identity
+    - teamId
+    - userId
+    type: object
+  model.AdminDeleteUserReq:
+    properties:
+      id:
+        type: string
+    required:
+    - id
+    type: object
+  model.AdminGetListItem:
+    properties:
+      createdAt:
+        type: string
+      filename:
+        type: string
+      filesize:
+        type: integer
+      filetype:
+        type: string
+      id:
+        type: string
+      oss:
+        type: string
+      path:
+        type: string
+      remark:
+        type: string
+      updatedAt:
+        type: string
+      uploader:
+        type: string
+      url:
+        type: string
+      userId:
+        type: string
+    type: object
+  model.AdminGetListRes:
+    properties:
+      list:
+        items:
+          $ref: '#/definitions/model.AdminGetListItem'
+        type: array
+      total:
+        type: integer
+    type: object
+  model.AdminGetTeamListItem:
+    properties:
+      createdAt:
+        type: string
+      creatorEmail:
+        type: string
+      creatorNickname:
+        type: string
+      description:
+        type: string
+      id:
+        type: string
+      logo:
+        type: string
+      memberCount:
+        type: integer
+      name:
+        type: string
+      updatedAt:
+        type: string
+    type: object
+  model.AdminGetTeamListRes:
+    properties:
+      list:
+        items:
+          $ref: '#/definitions/model.AdminGetTeamListItem'
+        type: array
+      total:
+        type: integer
+    type: object
+  model.AdminGetUserListRes:
+    properties:
+      list:
+        items:
+          $ref: '#/definitions/model.UserResponse'
+        type: array
+      total:
+        type: integer
+    type: object
+  model.AdminLoginReq:
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+    required:
+    - email
+    - password
+    type: object
+  model.AdminUpdateInfoReq:
+    properties:
+      avatar:
+        type: string
+      id:
+        type: string
+      identity:
+        $ref: '#/definitions/constants.UserIdentity'
+      nickname:
+        type: string
+      role:
+        type: string
+      status:
+        type: integer
+      tags:
+        items:
+          type: string
+        type: array
+    required:
+    - id
+    type: object
+  model.BatchCreateInviteCodeReq:
+    properties:
+      count:
+        type: integer
+    required:
+    - count
+    type: object
+  model.BatchCreateMemberReq:
+    properties:
+      memberList:
+        items:
+          $ref: '#/definitions/model.Member'
+        type: array
+      projectId:
+        type: string
+      role:
+        $ref: '#/definitions/constants.ProjectRole'
+    required:
+    - memberList
+    - projectId
+    - role
+    type: object
+  model.BatchGetUsersReq:
+    properties:
+      userIds:
+        items:
+          type: string
+        minItems: 1
+        type: array
+    required:
+    - userIds
+    type: object
+  model.BatchGetUsersRes:
+    properties:
+      list:
+        items:
+          $ref: '#/definitions/model.UserBasicInfo'
+        type: array
+    type: object
+  model.CopyMvDashboardReq:
+    properties:
+      id:
+        description: 要复制的仪表盘ID
+        type: string
+      name:
+        description: 新仪表盘名称，为空则自动生成"原名称_副本"
+        type: string
+    required:
+    - id
+    type: object
+  model.CopyMvDashboardRes:
+    properties:
+      id:
+        description: 新创建的仪表盘ID
+        type: string
+    type: object
+  model.CopyMvTableSchemaReq:
+    properties:
+      name:
+        description: 新数据表名称（项目中不允许重复）
+        type: string
+      projectId:
+        description: 项目ID
+        type: string
+      range:
+        description: 1=仅结构 2=结构+记录
+        type: integer
+      sourceId:
+        description: 源数据表ID
+        type: string
+    required:
+    - name
+    - projectId
+    - range
+    - sourceId
+    type: object
+  model.CopyMvTableSchemaRes:
+    properties:
+      id:
+        description: 新创建的数据表ID
+        type: string
+    type: object
+  model.CreateMvDashboardChartReq:
+    properties:
+      config:
+        additionalProperties: {}
+        type: object
+      dashboardId:
+        type: string
+      field1Id:
+        type: string
+      field2Id:
+        type: string
+      tableSchemaId:
+        type: string
+      title:
+        type: string
+      type:
+        type: string
+    required:
+    - dashboardId
+    - tableSchemaId
+    - title
+    - type
+    type: object
+  model.CreateMvDashboardReq:
+    properties:
+      bgColor:
+        type: string
+      bgImage:
+        type: string
+      bgType:
+        type: string
+      folderId:
+        type: string
+      name:
+        type: string
+      projectId:
+        type: string
+    required:
+    - name
+    - projectId
+    type: object
+  model.CreateMvDocReq:
+    properties:
+      content:
+        type: string
+      folderId:
+        type: string
+      name:
+        type: string
+      projectId:
+        type: string
+    required:
+    - name
+    - projectId
+    type: object
+  model.CreateMvFolderReq:
+    properties:
+      name:
+        type: string
+      parentId:
+        type: string
+      projectId:
+        type: string
+    required:
+    - name
+    - projectId
+    type: object
+  model.CreateMvProjectReq:
+    properties:
+      description:
+        type: string
+      name:
+        type: string
+    required:
+    - name
+    type: object
+  model.CreateMvProjectRes:
+    properties:
+      id:
+        type: string
+    type: object
+  model.CreateMvTableSchemaReq:
+    properties:
+      folderId:
+        type: string
+      name:
+        type: string
+      projectId:
+        type: string
+    required:
+    - name
+    type: object
+  model.CreateMvTemplateTagReq:
+    properties:
+      description:
+        type: string
+      name:
+        type: string
+    required:
+    - name
+    type: object
+  model.CreateMvViewReq:
+    properties:
+      tableSchemaId:
+        type: string
+      type:
+        description: table=表格视图 form=表单视图 board=看板视图
+        type: string
+    required:
+    - tableSchemaId
+    - type
+    type: object
+  model.CreateProjectNodeReq:
+    properties:
+      folderId:
+        description: 所在文件夹ID，根目录可为空
+        type: string
+      name:
+        description: 名称
+        type: string
+      projectId:
+        type: string
+      type:
+        description: table / form / dashboard / folder
+        type: string
+    required:
+    - name
+    - projectId
+    - type
+    type: object
+  model.CreateProjectNodeRes:
+    properties:
+      id:
+        type: string
+      type:
+        type: string
+    type: object
+  model.CreateTeamReq:
+    properties:
+      description:
+        type: string
+      logo:
+        type: string
+      name:
+        type: string
+    required:
+    - name
+    type: object
+  model.DashboardChartItem:
+    properties:
+      config: {}
+      field1Id:
+        type: string
+      field2Id:
+        type: string
+      id:
+        type: string
+      tableSchemaId:
+        type: string
+      title:
+        type: string
+      type:
+        type: string
+    type: object
+  model.DeleteMvDashboardChartReq:
+    properties:
+      id:
+        type: string
+    required:
+    - id
+    type: object
+  model.DeleteMvDashboardReq:
+    properties:
+      id:
+        type: string
+    required:
+    - id
+    type: object
+  model.DeleteMvDocReq:
+    properties:
+      id:
+        type: string
+    required:
+    - id
+    type: object
+  model.DeleteMvFieldReq:
+    properties:
+      id:
+        type: string
+    required:
+    - id
+    type: object
+  model.DeleteMvFolderReq:
+    properties:
+      id:
+        type: string
+    required:
+    - id
+    type: object
+  model.DeleteMvProjectReq:
+    properties:
+      id:
+        type: string
+    required:
+    - id
+    type: object
+  model.DeleteMvTableSchemaReq:
+    properties:
+      id:
+        type: string
+    required:
+    - id
+    type: object
+  model.DeleteMvTemplateProjectReq:
+    properties:
+      id:
+        type: string
+    required:
+    - id
+    type: object
+  model.DeleteMvTemplateTagReq:
+    properties:
+      id:
+        type: string
+    required:
+    - id
+    type: object
+  model.DeleteMvViewReq:
+    properties:
+      id:
+        type: string
+    required:
+    - id
+    type: object
+  model.DeleteRecordsReq:
+    properties:
+      recordIds:
+        items:
+          type: string
+        minItems: 1
+        type: array
+    required:
+    - recordIds
+    type: object
+  model.DeleteTeamReq:
+    properties:
+      id:
+        type: string
+    required:
+    - id
+    type: object
+  model.DisableMvProjectAdvancedPermReq:
+    properties:
+      projectId:
+        type: string
+    type: object
+  model.EnableMvProjectAdvancedPermReq:
+    properties:
+      projectId:
+        type: string
+    type: object
+  model.FieldPerm:
+    properties:
+      canAdd:
+        type: boolean
+      canEdit:
+        type: boolean
+      canRead:
+        type: boolean
+      fieldId:
+        type: string
+    type: object
+  model.FolderItem:
+    properties:
+      id:
+        type: string
+      name:
+        type: string
+      parentId:
+        type: string
+      projectId:
+        type: string
+    type: object
+  model.GetDashboardRes:
+    properties:
+      bgColor:
+        type: string
+      bgImage:
+        type: string
+      bgType:
+        type: string
+      charts:
+        items:
+          $ref: '#/definitions/model.DashboardChartItem'
+        type: array
+      createdAt:
+        type: string
+      folderId:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+      projectId:
+        type: string
+      updatedAt:
+        type: string
+    type: object
+  model.GetInviteCodeListRes:
+    properties:
+      list:
+        items:
+          $ref: '#/definitions/model.InviteCodeListItem'
+        type: array
+      total:
+        type: integer
+    type: object
+  model.GetMemberListRes:
+    properties:
+      list:
+        items:
+          $ref: '#/definitions/model.TeamMember'
+        type: array
+      total:
+        type: integer
+    type: object
+  model.GetMvDocRes:
+    properties:
+      content:
+        type: string
+      creator:
+        $ref: '#/definitions/model.UserInfo'
+      ct:
+        type: string
+      folderId:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+      projectId:
+        type: string
+      updater:
+        $ref: '#/definitions/model.UserInfo'
+      ut:
+        type: string
+    type: object
+  model.GetMvFieldListRes:
+    properties:
+      fields:
+        items: {}
+        type: array
+    type: object
+  model.GetMvProjectAdvancedPermRes:
+    properties:
+      canAdd:
+        type: boolean
+      canCheckViews:
+        items:
+          type: string
+        type: array
+      canDelete:
+        type: boolean
+      customFieldPerm:
+        items:
+          $ref: '#/definitions/model.FieldPerm'
+        type: array
+      dataAction:
+        type: string
+      fieldAccess:
+        type: string
+      id:
+        type: string
+      operateRange:
+        type: string
+      viewAccess:
+        type: string
+    type: object
+  model.GetMvViewRes:
+    properties:
+      boardConfig:
+        $ref: '#/definitions/model.MvViewBoardConfig'
+      description:
+        type: string
+      formConfig:
+        $ref: '#/definitions/model.MvViewFormConfig'
+      id:
+        type: string
+      name:
+        type: string
+      tableConfig:
+        $ref: '#/definitions/model.MvViewTableConfig'
+      type:
+        type: string
+    type: object
+  model.GetNewUsersRes:
+    properties:
+      data:
+        description: 数据值
+        items:
+          type: integer
+        type: array
+      xAxis:
+        description: X轴标签
+        items:
+          type: string
+        type: array
+    type: object
+  model.GetProjectRes:
+    properties:
+      createdAt:
+        type: string
+      description:
+        type: string
+      enableAdvancedPerm:
+        type: boolean
+      id:
+        type: string
+      isFavorite:
+        type: boolean
+      name:
+        type: string
+      updatedAt:
+        type: string
+      userId:
+        type: string
+    type: object
+  model.GetProjectTablesRes:
+    properties:
+      list:
+        items:
+          $ref: '#/definitions/model.TableSchemaItem'
+        type: array
+      total:
+        type: integer
+    type: object
+  model.GetRecordOptionsRes:
+    properties:
+      options:
+        items:
+          $ref: '#/definitions/model.RecordOption'
+        type: array
+    type: object
+  model.GetRichTextContentRes:
+    properties:
+      content:
+        type: string
+    type: object
+  model.GetTableDataRes:
+    properties:
+      config:
+        $ref: '#/definitions/model.TableConfig'
+      createdBy:
+        type: string
+      ct:
+        type: string
+      fields:
+        items: {}
+        type: array
+      name:
+        type: string
+      records:
+        items:
+          $ref: '#/definitions/model.RecordItem'
+        type: array
+      tableSchemaId:
+        type: string
+      updatedBy:
+        type: string
+      ut:
+        type: string
+      version:
+        type: integer
+    type: object
+  model.ImportError:
+    properties:
+      column:
+        description: 列名
+        type: string
+      error:
+        description: 错误信息
+        type: string
+      row:
+        description: 行号（从1开始，包含标题行）
+        type: integer
+    type: object
+  model.ImportRecordsRes:
+    properties:
+      errors:
+        description: 错误详情
+        items:
+          $ref: '#/definitions/model.ImportError'
+        type: array
+      failCount:
+        description: 失败数量
+        type: integer
+      successCount:
+        description: 成功导入数量
+        type: integer
+      totalCount:
+        description: 总行数
+        type: integer
+    type: object
+  model.InsertMvRecordReq:
+    type: object
+  model.InviteCodeListItem:
+    properties:
+      createdAt:
+        type: string
+      creator:
+        type: string
+      id:
+        type: string
+      isUsed:
+        type: boolean
+      usedBy:
+        type: string
+      value:
+        type: string
+    type: object
+  model.InviteCodeRegisterReq:
+    properties:
+      email:
+        type: string
+      inviteCode:
+        type: string
+      password:
+        type: string
+    required:
+    - email
+    - inviteCode
+    - password
+    type: object
+  model.ListMvDocRes:
+    properties:
+      list:
+        items:
+          $ref: '#/definitions/model.MvDocItem'
+        type: array
+      total:
+        type: integer
+    type: object
+  model.ListTeamReq:
+    properties:
+      list:
+        items:
+          $ref: '#/definitions/model.TeamListItem'
+        type: array
+    type: object
+  model.LoginReq:
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+    required:
+    - email
+    - password
+    type: object
+  model.LoginRes:
+    properties:
+      refreshToken:
+        type: string
+      token:
+        type: string
+      userInfo:
+        $ref: '#/definitions/model.UserResponse'
+    type: object
+  model.Member:
+    properties:
+      id:
+        type: string
+      target:
+        type: string
+    type: object
+  model.MemberListItem:
+    properties:
+      avatar:
+        description: 团队头像/用户头像
+        type: string
+      name:
+        description: 团队名/用户昵称
+        type: string
+      target:
+        description: user/team
+        type: string
+      targetID:
+        description: 用户id/团队id
+        type: string
+    type: object
+  model.MoveNodeReq:
+    properties:
+      projectId:
+        description: 项目ID
+        type: string
+      targetFolderId:
+        description: 目标文件夹ID，为空字符串表示移动到根目录
+        type: string
+      targetId:
+        description: 要移动的节点ID
+        type: string
+      type:
+        description: '节点类型: folder / table / form / dashboard'
+        type: string
+    required:
+    - projectId
+    - targetId
+    - type
+    type: object
+  model.MvDocItem:
+    properties:
+      content:
+        type: string
+      creator:
+        $ref: '#/definitions/model.UserInfo'
+      ct:
+        type: string
+      folderId:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+      projectId:
+        type: string
+      updater:
+        $ref: '#/definitions/model.UserInfo'
+      ut:
+        type: string
+    type: object
+  model.MvViewBoardConfig:
+    properties:
+      filterConfig: {}
+      groupConfig: {}
+      showFieldTitle:
+        type: boolean
+      sortConfig: {}
+    type: object
+  model.MvViewFormConfig:
+    properties:
+      config: {}
+      cover:
+        type: string
+      cycleRemindConfig: {}
+      description:
+        type: string
+      enableAnonymous:
+        type: boolean
+      enableCycleRemind:
+        type: boolean
+      enableEditAfterSubmit:
+        type: boolean
+      enableLimitCollect:
+        type: boolean
+      enableLimitSubmit:
+        type: boolean
+      enableNoLogin:
+        type: boolean
+      enableSharing:
+        type: boolean
+      filter:
+        type: string
+      filterConfig: {}
+      layout:
+        type: string
+      limitCollectCount:
+        type: integer
+      limitSubmitType:
+        type: string
+      name:
+        type: string
+      stats:
+        type: string
+    type: object
+  model.MvViewItem:
+    properties:
+      description:
+        type: string
+      id:
+        type: string
+      isDefault:
+        type: boolean
+      name:
+        type: string
+      type:
+        type: string
+    type: object
+  model.MvViewTableConfig:
+    properties:
+      colorConfig: {}
+      filterConfig: {}
+      groupConfig: {}
+      rowHeight:
+        type: integer
+      sortConfig: {}
+    type: object
+  model.ProjectMemberItem:
+    properties:
+      avatar:
+        type: string
+      name:
+        type: string
+      role:
+        $ref: '#/definitions/constants.ProjectRole'
+      target:
+        type: string
+      targetID:
+        type: string
+    type: object
+  model.ProjectMemberListRes:
+    properties:
+      list:
+        items:
+          $ref: '#/definitions/model.ProjectMemberItem'
+        type: array
+    type: object
+  model.QueryFolderListRes:
+    properties:
+      list:
+        items:
+          $ref: '#/definitions/model.FolderItem'
+        type: array
+    type: object
+  model.QueryMvTemplateProjectItem:
+    properties:
+      cover:
+        type: string
+      creator:
+        description: 创建者的昵称
+        type: string
+      description:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+      tags:
+        items:
+          type: string
+        type: array
+      useCount:
+        type: integer
+    type: object
+  model.QueryMvTemplateProjectRes:
+    properties:
+      list:
+        items:
+          $ref: '#/definitions/model.QueryMvTemplateProjectItem'
+        type: array
+      total:
+        type: integer
+    type: object
+  model.QueryMvTemplateTagItem:
+    properties:
+      description:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+    type: object
+  model.QueryMvTemplateTagRes:
+    properties:
+      list:
+        items:
+          $ref: '#/definitions/model.QueryMvTemplateTagItem'
+        type: array
+    type: object
+  model.QueryMvViewRes:
+    properties:
+      list:
+        items:
+          $ref: '#/definitions/model.MvViewItem'
+        type: array
+    type: object
+  model.QueryProjectItem:
+    properties:
+      createdAt:
+        type: string
+      description:
+        type: string
+      id:
+        type: string
+      isFavorite:
+        type: boolean
+      name:
+        type: string
+      updatedAt:
+        type: string
+    type: object
+  model.QueryProjectRes:
+    properties:
+      list:
+        items:
+          $ref: '#/definitions/model.QueryProjectItem'
+        type: array
+      total:
+        type: integer
+    type: object
+  model.QuerySubNodeRes:
+    properties:
+      list:
+        items:
+          $ref: '#/definitions/model.SubNode'
+        type: array
+    type: object
+  model.RecordItem:
+    additionalProperties: {}
+    type: object
+  model.RecordOption:
+    properties:
+      id:
+        description: rowId
+        type: string
+      value:
+        description: 第一个字段对应的数据
+    type: object
+  model.RegisterReq:
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+      verifyCode:
+        type: string
+    required:
+    - email
+    - password
+    - verifyCode
+    type: object
+  model.RegisterRes:
+    properties:
+      refreshToken:
+        type: string
+      token:
+        type: string
+      userInfo:
+        $ref: '#/definitions/model.UserResponse'
+    type: object
+  model.RenameProjectNodeReq:
+    properties:
+      name:
+        type: string
+      projectId:
+        type: string
+      targetId:
+        type: string
+      type:
+        description: table / form / dashboard / folder
+        type: string
+    required:
+    - name
+    - projectId
+    - targetId
+    - type
+    type: object
+  model.ResetPasswordReq:
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+      verifyCode:
+        type: string
+    required:
+    - email
+    - password
+    - verifyCode
+    type: object
+  model.SaveAsTemplateReq:
+    properties:
+      cover:
+        type: string
+      description:
+        type: string
+      name:
+        type: string
+      projectId:
+        type: string
+      tags:
+        items:
+          type: string
+        type: array
+    required:
+    - name
+    - projectId
+    type: object
+  model.SaveAsTemplateRes:
+    properties:
+      id:
+        type: string
+    type: object
+  model.SaveRowSortReq:
+    properties:
+      currentId:
+        type: string
+      nextRecordId:
+        type: string
+      prevRecordId:
+        type: string
+    type: object
+  model.SearchMemberRes:
+    properties:
+      list:
+        items:
+          $ref: '#/definitions/model.MemberListItem'
+        type: array
+    type: object
+  model.SearchRes:
+    properties:
+      list:
+        items:
+          $ref: '#/definitions/model.SubNode'
+        type: array
+    type: object
+  model.SearchUserRes:
+    properties:
+      list:
+        items:
+          $ref: '#/definitions/model.UserBasicInfo'
+        type: array
+    type: object
+  model.SendEmailVerifyCodeReq:
+    properties:
+      email:
+        type: string
+    required:
+    - email
+    type: object
+  model.SetFavoriteProjectReq:
+    properties:
+      isFavorite:
+        type: boolean
+      projectId:
+        type: string
+    required:
+    - projectId
+    type: object
+  model.SetShareRangeReq:
+    properties:
+      accessPassword:
+        type: string
+      projectId:
+        type: string
+      shareRange:
+        $ref: '#/definitions/constants.ShareRange'
+      teamAction:
+        $ref: '#/definitions/constants.ProjectRole'
+    required:
+    - projectId
+    - shareRange
+    type: object
+  model.SortMvFieldReq:
+    properties:
+      fieldIds:
+        items:
+          type: string
+        minItems: 1
+        type: array
+      tableSchemaId:
+        type: string
+    required:
+    - fieldIds
+    - tableSchemaId
+    type: object
+  model.SubNode:
+    properties:
+      children:
+        items:
+          $ref: '#/definitions/model.SubNode'
+        type: array
+      id:
+        type: string
+      name:
+        type: string
+      parentId:
+        type: string
+      type:
+        type: string
+    type: object
+  model.SubmitFormReq:
+    type: object
+  model.SwitchActiveViewReq:
+    properties:
+      tableSchemaId:
+        type: string
+      viewId:
+        type: string
+    required:
+    - tableSchemaId
+    - viewId
+    type: object
+  model.TableConfig:
+    properties:
+      allowExport:
+        type: boolean
+      allowImport:
+        type: boolean
+      enableRevision:
+        type: boolean
+      enableWatermark:
+        type: boolean
+      maxRecords:
+        type: integer
+      watermarkConfig:
+        $ref: '#/definitions/model.WatermarkConfig'
+    type: object
+  model.TableSchemaItem:
+    properties:
+      description:
+        type: string
+      folderId:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+    type: object
+  model.TeamListItem:
+    properties:
+      createdAt:
+        type: string
+      creator:
+        type: string
+      description:
+        type: string
+      displayAvatarList:
+        items:
+          type: string
+        type: array
+      id:
+        type: string
+      identity:
+        $ref: '#/definitions/constants.TeamIdentity'
+      logo:
+        type: string
+      memberCount:
+        type: integer
+      name:
+        type: string
+      updatedAt:
+        type: string
+    type: object
+  model.TeamMember:
+    properties:
+      avatar:
+        type: string
+      createdAt:
+        type: string
+      email:
+        type: string
+      identity:
+        $ref: '#/definitions/constants.TeamIdentity'
+      nickname:
+        type: string
+      updatedAt:
+        type: string
+      userId:
+        type: string
+    type: object
+  model.UpdateCellReq:
+    properties:
+      fieldId:
+        type: string
+      recordId:
+        type: string
+      value: {}
+    required:
+    - fieldId
+    - recordId
+    type: object
+  model.UpdateInfoReq:
+    properties:
+      avatar:
+        type: string
+      nickname:
+        type: string
+      tags:
+        items:
+          type: string
+        type: array
+    type: object
+  model.UpdateMvDashboardChartReq:
+    type: object
+  model.UpdateMvDashboardReq:
+    properties:
+      bgColor:
+        type: string
+      bgImage:
+        type: string
+      bgType:
+        type: string
+      folderId:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+    required:
+    - id
+    type: object
+  model.UpdateMvDocReq:
+    properties:
+      content:
+        type: string
+      folderId:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+    required:
+    - id
+    type: object
+  model.UpdateMvFolderReq:
+    properties:
+      id:
+        type: string
+      name:
+        type: string
+    required:
+    - id
+    - name
+    type: object
+  model.UpdateMvProjectAdvancedPermReq:
+    properties:
+      canAdd:
+        type: boolean
+      canCheckViews:
+        items:
+          type: string
+        type: array
+      canDelete:
+        type: boolean
+      canOperateView:
+        type: boolean
+      customFieldPerm:
+        items:
+          $ref: '#/definitions/model.FieldPerm'
+        type: array
+      dataAction:
+        type: string
+      fieldAccess:
+        type: string
+      id:
+        type: string
+      operateRange:
+        type: string
+      viewAccess:
+        type: string
+    required:
+    - dataAction
+    type: object
+  model.UpdateMvProjectReq:
+    properties:
+      description:
+        type: string
+      enableAdvancedPerm:
+        type: boolean
+      id:
+        type: string
+      name:
+        type: string
+    required:
+    - id
+    type: object
+  model.UpdateMvTableSchemaReq:
+    properties:
+      description:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+      rowName:
+        type: string
+    required:
+    - id
+    type: object
+  model.UpdateMvTemplateProjectReq:
+    properties:
+      cover:
+        type: string
+      description:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+      tags:
+        items:
+          type: string
+        type: array
+    required:
+    - id
+    type: object
+  model.UpdateMvTemplateTagReq:
+    properties:
+      description:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+    required:
+    - id
+    type: object
+  model.UpdateMvViewBoardReq:
+    type: object
+  model.UpdateMvViewFormReq:
+    properties:
+      config:
+        items:
+          type: integer
+        type: array
+      cover:
+        type: string
+      description:
+        type: string
+      enableAnonymous:
+        type: boolean
+      enableEditAfterSubmit:
+        type: boolean
+      enableLimitCollect:
+        type: boolean
+      enableLimitSubmit:
+        type: boolean
+      enableNoLogin:
+        type: boolean
+      enableSharing:
+        type: boolean
+      filter:
+        type: string
+      filterConfig:
+        items:
+          type: integer
+        type: array
+      id:
+        type: string
+      layout:
+        type: string
+      limitCollectCount:
+        type: integer
+      limitSubmitType:
+        type: string
+      name:
+        type: string
+      stats:
+        type: string
+    required:
+    - id
+    type: object
+  model.UpdateMvViewReq:
+    properties:
+      description:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+    required:
+    - id
+    type: object
+  model.UpdateMvViewTableReq:
+    type: object
+  model.UpdateRowReq:
+    additionalProperties: {}
+    type: object
+  model.UpdateTagSortReq:
+    properties:
+      currentTagId:
+        type: string
+      nextTagId:
+        type: string
+      prevTagId:
+        type: string
+    required:
+    - currentTagId
+    type: object
+  model.UpdateTeamReq:
+    properties:
+      description:
+        type: string
+      id:
+        type: string
+      logo:
+        type: string
+      name:
+        type: string
+    required:
+    - id
+    - name
+    type: object
+  model.UploadRes:
+    properties:
+      filename:
+        type: string
+      id:
+        type: string
+      size:
+        type: integer
+      url:
+        type: string
+    type: object
+  model.UserBasicInfo:
+    properties:
+      avatar:
+        type: string
+      email:
+        type: string
+      id:
+        type: string
+      nickname:
+        type: string
+    type: object
+  model.UserInfo:
+    properties:
+      avatar:
+        type: string
+      email:
+        type: string
+      id:
+        type: string
+      nickname:
+        type: string
+    type: object
+  model.UserResponse:
+    properties:
+      avatar:
+        type: string
+      createdAt:
+        type: string
+      email:
+        type: string
+      id:
+        type: string
+      identity:
+        $ref: '#/definitions/constants.UserIdentity'
+      lastLoginAt:
+        type: string
+      maxProjectCount:
+        type: integer
+      maxTeamCount:
+        type: integer
+      nickname:
+        type: string
+      role:
+        type: string
+      status:
+        type: integer
+      tags:
+        items:
+          type: string
+        type: array
+      updatedAt:
+        type: string
+    type: object
+  model.WatermarkConfig:
+    properties:
+      content:
+        $ref: '#/definitions/model.WatermarkContent'
+      style:
+        $ref: '#/definitions/model.WatermarkStyle'
+    type: object
+  model.WatermarkContent:
+    properties:
+      imageUrl:
+        type: string
+      text:
+        type: string
+      type:
+        description: '"text" or "image"'
+        type: string
+    type: object
+  model.WatermarkStyle:
+    properties:
+      color:
+        type: string
+      fontSize:
+        type: integer
+      opacity:
+        type: number
+      rotation:
+        type: number
+      spacing:
+        type: integer
+    type: object
+  model.WebsiteConfigSchema:
+    properties:
+      communityRQCode:
+        type: string
+      copyright:
+        type: string
+      inviteRQCode:
+        type: string
+      logo:
+        type: string
+      registerMethod:
+        items:
+          type: string
+        type: array
+      slogan:
+        type: string
+      uploadMethod:
+        type: string
+    type: object
+  mvtable_internal_app_mv_project_perm_model.DeleteMemberReq:
+    properties:
+      projectId:
+        type: string
+      target:
+        type: string
+      targetID:
+        type: string
+    required:
+    - projectId
+    - target
+    - targetID
+    type: object
+  mvtable_internal_app_mv_project_perm_model.UpdateMemberReq:
+    properties:
+      projectId:
+        type: string
+      role:
+        $ref: '#/definitions/constants.ProjectRole'
+      target:
+        type: string
+      targetID:
+        type: string
+    required:
+    - projectId
+    - role
+    - target
+    - targetID
+    type: object
+  mvtable_internal_app_team_model.DeleteMemberReq:
+    properties:
+      teamId:
+        type: string
+      userId:
+        type: string
+    required:
+    - teamId
+    - userId
+    type: object
+  mvtable_internal_app_team_model.UpdateMemberReq:
+    properties:
+      identity:
+        $ref: '#/definitions/constants.TeamIdentity'
+      teamId:
+        type: string
+      userId:
+        type: string
+    required:
+    - identity
+    - teamId
+    - userId
+    type: object
+info:
+  contact:
+    email: mvtable@gmail.com
+    name: MVTable
+  description: MVTable 后端服务 API
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  termsOfService: http://swagger.io/terms/
+  title: MVTable
+  version: "1.0"
+paths:
+  /v1/admin/file/list:
+    get:
+      consumes:
+      - application/json
+      description: 管理员获取文件列表
+      parameters:
+      - default: 1
+        description: 页码
+        in: query
+        name: page
+        type: integer
+      - default: 10
+        description: 每页数量
+        in: query
+        name: size
+        type: integer
+      - description: 文件名筛选
+        in: query
+        name: filename
+        type: string
+      - description: OSS类型筛选
+        in: query
+        name: oss
+        type: string
+      - description: 备注筛选
+        in: query
+        name: remark
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 获取成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/middleware.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.AdminGetListRes'
+              type: object
+      security:
+      - Bearer: []
+      summary: 获取文件列表
+      tags:
+      - 管理后台
+  /v1/admin/invite-code/batch-create:
+    post:
+      consumes:
+      - application/json
+      description: 管理员批量创建邀请码
+      parameters:
+      - description: 批量创建邀请码请求
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/model.BatchCreateInviteCodeReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 创建成功，data字段为邀请码列表
+          schema:
+            allOf:
+            - $ref: '#/definitions/middleware.Response'
+            - properties:
+                data:
+                  items:
+                    type: string
+                  type: array
+              type: object
+      security:
+      - Bearer: []
+      summary: 批量创建邀请码
+      tags:
+      - 管理后台
+  /v1/admin/invite-code/list:
+    get:
+      consumes:
+      - application/json
+      description: 管理员获取邀请码列表
+      parameters:
+      - default: 1
+        description: 页码
+        in: query
+        name: page
+        type: integer
+      - default: 10
+        description: 每页数量
+        in: query
+        name: size
+        type: integer
+      - description: 是否已使用
+        in: query
+        name: isUsed
+        type: boolean
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 获取成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/middleware.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.GetInviteCodeListRes'
+              type: object
+      security:
+      - Bearer: []
+      summary: 获取邀请码列表
+      tags:
+      - 管理后台
+  /v1/admin/login:
+    post:
+      consumes:
+      - application/json
+      description: 管理员登录接口
+      parameters:
+      - description: 登录请求
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/model.AdminLoginReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 登录成功，data字段包含token和refreshToken
+          schema:
+            allOf:
+            - $ref: '#/definitions/middleware.Response'
+            - properties:
+                data:
+                  type: object
+              type: object
+      summary: 管理员登录
+      tags:
+      - 管理后台
+  /v1/admin/team/list:
+    get:
+      consumes:
+      - application/json
+      description: 管理员获取所有团队列表
+      parameters:
+      - default: 1
+        description: 页码
+        in: query
+        name: page
+        type: integer
+      - default: 10
+        description: 每页数量
+        in: query
+        name: size
+        type: integer
+      - description: 搜索关键词
+        in: query
+        name: searchWord
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 获取成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/middleware.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.AdminGetTeamListRes'
+              type: object
+      security:
+      - Bearer: []
+      summary: 获取团队列表
+      tags:
+      - 管理后台
+  /v1/admin/template-project/delete:
+    post:
+      consumes:
+      - application/json
+      description: 删除模板项目及其所有相关数据（表格、字段、记录、视图等）
+      parameters:
+      - description: 删除模板项目请求
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/model.DeleteMvTemplateProjectReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 删除成功
+          schema:
+            $ref: '#/definitions/middleware.Response'
+      security:
+      - Bearer: []
+      summary: 删除模板项目
+      tags:
+      - 管理后台
+  /v1/admin/template-project/save-as-template:
+    post:
+      consumes:
+      - application/json
+      description: 将项目保存为模板，复制项目的所有相关数据（文件夹、表格、字段、记录、视图等）
+      parameters:
+      - description: 保存为模板请求
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/model.SaveAsTemplateReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 保存成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/middleware.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.SaveAsTemplateRes'
+              type: object
+      security:
+      - Bearer: []
+      summary: 保存项目为模板
+      tags:
+      - 管理后台
+  /v1/admin/template-project/update:
+    post:
+      consumes:
+      - application/json
+      description: 更新模板项目信息（名称、描述、封面、标签）
+      parameters:
+      - description: 更新模板项目请求
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/model.UpdateMvTemplateProjectReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 更新成功
+          schema:
+            $ref: '#/definitions/middleware.Response'
+      security:
+      - Bearer: []
+      summary: 更新模板项目
+      tags:
+      - 管理后台
+  /v1/admin/template-tag/create:
+    post:
+      consumes:
+      - application/json
+      description: 创建新的模板标签
+      parameters:
+      - description: 创建模板标签请求
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/model.CreateMvTemplateTagReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 创建成功
+          schema:
+            $ref: '#/definitions/middleware.Response'
+      security:
+      - Bearer: []
+      summary: 创建模板标签
+      tags:
+      - 管理后台
+  /v1/admin/template-tag/delete:
+    post:
+      consumes:
+      - application/json
+      description: 删除模板标签（软删除）
+      parameters:
+      - description: 删除模板标签请求
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/model.DeleteMvTemplateTagReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 删除成功
+          schema:
+            $ref: '#/definitions/middleware.Response'
+      security:
+      - Bearer: []
+      summary: 删除模板标签
+      tags:
+      - 管理后台
+  /v1/admin/template-tag/sort:
+    post:
+      consumes:
+      - application/json
+      description: 更新模板标签的展示顺序，根据前后标签的位置计算新的排序索引
+      parameters:
+      - description: 调整排序请求
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/model.UpdateTagSortReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 更新成功
+          schema:
+            $ref: '#/definitions/middleware.Response'
+      security:
+      - Bearer: []
+      summary: 调整标签排序
+      tags:
+      - 管理后台
+  /v1/admin/template-tag/update:
+    post:
+      consumes:
+      - application/json
+      description: 更新模板标签信息
+      parameters:
+      - description: 更新模板标签请求
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/model.UpdateMvTemplateTagReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 更新成功
+          schema:
+            $ref: '#/definitions/middleware.Response'
+      security:
+      - Bearer: []
+      summary: 更新模板标签
+      tags:
+      - 管理后台
+  /v1/admin/user/delete:
+    post:
+      consumes:
+      - application/json
+      description: 管理员删除用户
+      parameters:
+      - description: 删除请求
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/model.AdminDeleteUserReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 删除成功
+          schema:
+            $ref: '#/definitions/middleware.Response'
+      security:
+      - Bearer: []
+      summary: 删除用户
+      tags:
+      - 管理后台
+  /v1/admin/user/info/update:
+    post:
+      consumes:
+      - application/json
+      description: 管理员更新用户信息
+      parameters:
+      - description: 更新请求
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/model.AdminUpdateInfoReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 更新成功
+          schema:
+            $ref: '#/definitions/middleware.Response'
+      security:
+      - Bearer: []
+      summary: 更新用户信息
+      tags:
+      - 管理后台
+  /v1/admin/user/list:
+    get:
+      consumes:
+      - application/json
+      description: 管理员获取用户列表
+      parameters:
+      - default: 1
+        description: 页码
+        in: query
+        name: page
+        type: integer
+      - default: 10
+        description: 每页数量
+        in: query
+        name: size
+        type: integer
+      - description: 邮箱筛选
+        in: query
+        name: email
+        type: string
+      - description: 昵称筛选
+        in: query
+        name: nickname
+        type: string
+      - description: 状态筛选
+        in: query
+        name: status
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 获取成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/middleware.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.AdminGetUserListRes'
+              type: object
+      security:
+      - Bearer: []
+      summary: 获取用户列表
+      tags:
+      - 管理后台
+  /v1/admin/website-config/save:
+    post:
+      consumes:
+      - application/json
+      description: 管理员保存网站配置
+      parameters:
+      - description: 网站配置
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/model.WebsiteConfigSchema'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 保存成功
+          schema:
+            $ref: '#/definitions/middleware.Response'
+      security:
+      - Bearer: []
+      summary: 保存网站配置
+      tags:
+      - 管理后台
+  /v1/admin/website/new-users:
+    get:
+      consumes:
+      - application/json
+      description: 根据时间范围获取新增用户统计数据，支持按日、周、月、年维度查看
+      parameters:
+      - description: 时间范围(day/week/month/year)
+        enum:
+        - day
+        - week
+        - month
+        - year
+        in: query
+        name: timeRange
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 获取成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/middleware.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.GetNewUsersRes'
+              type: object
+      summary: 获取新增用户数据
+      tags:
+      - 管理后台
+  /v1/admin/website/statistics:
+    get:
+      consumes:
+      - application/json
+      description: 获取访问量、用户量、团队数、项目数等统计信息
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 获取成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/middleware.Response'
+            - properties:
+                data:
+                  type: object
+              type: object
+      summary: 获取网站统计数据
+      tags:
+      - 管理后台
+  /v1/auth/invite-code/register:
+    post:
+      consumes:
+      - application/json
+      description: 通过邀请码注册
+      parameters:
+      - description: 注册请求
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/model.InviteCodeRegisterReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 注册成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/middleware.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.RegisterRes'
+              type: object
+      summary: 邀请码注册
+      tags:
+      - 认证
+  /v1/auth/login:
+    post:
+      consumes:
+      - application/json
+      description: 用户登录接口
+      parameters:
+      - description: 登录请求
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/model.LoginReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 登录成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/middleware.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.LoginRes'
+              type: object
+      summary: 用户登录
+      tags:
+      - 认证
+  /v1/auth/refresh:
+    post:
+      consumes:
+      - application/json
+      description: 刷新访问令牌
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 刷新成功
+          schema:
+            $ref: '#/definitions/middleware.Response'
+      summary: 刷新令牌
+      tags:
+      - 认证
+  /v1/auth/register:
+    post:
+      consumes:
+      - application/json
+      description: 通过邮箱验证码注册
+      parameters:
+      - description: 注册请求
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/model.RegisterReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 注册成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/middleware.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.RegisterRes'
+              type: object
+      summary: 邮箱注册
+      tags:
+      - 认证
+  /v1/auth/register/send-code:
+    post:
+      consumes:
+      - application/json
+      description: 发送邮箱验证码用于注册
+      parameters:
+      - description: 发送验证码请求
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/model.SendEmailVerifyCodeReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 发送成功
+          schema:
+            $ref: '#/definitions/middleware.Response'
+      summary: 发送邮箱验证码
+      tags:
+      - 认证
+  /v1/dashboard/chart/create:
+    post:
+      consumes:
+      - application/json
+      description: 在指定仪表盘下创建新的图表
+      parameters:
+      - description: 创建仪表盘图表请求
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/model.CreateMvDashboardChartReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 创建成功，data为图表ID
+          schema:
+            allOf:
+            - $ref: '#/definitions/middleware.Response'
+            - properties:
+                data:
+                  type: string
+              type: object
+      security:
+      - Bearer: []
+      summary: 创建仪表盘图表
+      tags:
+      - 仪表盘
+  /v1/dashboard/chart/delete:
+    post:
+      consumes:
+      - application/json
+      description: 删除指定的仪表盘图表
+      parameters:
+      - description: 删除仪表盘图表请求
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/model.DeleteMvDashboardChartReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 删除成功
+          schema:
+            $ref: '#/definitions/middleware.Response'
+      security:
+      - Bearer: []
+      summary: 删除仪表盘图表
+      tags:
+      - 仪表盘
+  /v1/dashboard/chart/update:
+    post:
+      consumes:
+      - application/json
+      description: 更新仪表盘图表的基础信息
+      parameters:
+      - description: 更新仪表盘图表请求
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/model.UpdateMvDashboardChartReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 更新成功
+          schema:
+            $ref: '#/definitions/middleware.Response'
+      security:
+      - Bearer: []
+      summary: 更新仪表盘图表
+      tags:
+      - 仪表盘
+  /v1/dashboard/copy:
+    post:
+      consumes:
+      - application/json
+      description: 复制指定仪表盘及其下所有图表，返回新创建的仪表盘ID
+      parameters:
+      - description: 复制仪表盘请求
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/model.CopyMvDashboardReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 复制成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/middleware.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.CopyMvDashboardRes'
+              type: object
+      security:
+      - Bearer: []
+      summary: 复制仪表盘
+      tags:
+      - 仪表盘
+  /v1/dashboard/create:
+    post:
+      consumes:
+      - application/json
+      description: 在项目下创建新的仪表盘
+      parameters:
+      - description: 创建仪表盘请求
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/model.CreateMvDashboardReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 创建成功，data为仪表盘ID
+          schema:
+            allOf:
+            - $ref: '#/definitions/middleware.Response'
+            - properties:
+                data:
+                  type: string
+              type: object
+      security:
+      - Bearer: []
+      summary: 创建仪表盘
+      tags:
+      - 仪表盘
+  /v1/dashboard/delete:
+    post:
+      consumes:
+      - application/json
+      description: 删除指定的仪表盘
+      parameters:
+      - description: 删除仪表盘请求
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/model.DeleteMvDashboardReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 删除成功
+          schema:
+            $ref: '#/definitions/middleware.Response'
+      security:
+      - Bearer: []
+      summary: 删除仪表盘
+      tags:
+      - 仪表盘
+  /v1/dashboard/get:
+    get:
+      consumes:
+      - application/json
+      description: 获取仪表盘基础信息及其下所有图表
+      parameters:
+      - in: query
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 获取成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/middleware.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.GetDashboardRes'
+              type: object
+      security:
+      - Bearer: []
+      summary: 获取仪表盘详情
+      tags:
+      - 仪表盘
+  /v1/dashboard/update:
+    post:
+      consumes:
+      - application/json
+      description: 更新仪表盘基础信息
+      parameters:
+      - description: 更新仪表盘请求
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/model.UpdateMvDashboardReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 更新成功
+          schema:
+            $ref: '#/definitions/middleware.Response'
+      security:
+      - Bearer: []
+      summary: 更新仪表盘
+      tags:
+      - 仪表盘
+  /v1/doc/create:
+    post:
+      consumes:
+      - application/json
+      description: 在项目下创建新的文档
+      parameters:
+      - description: 创建文档请求
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/model.CreateMvDocReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 创建成功，data为文档ID
+          schema:
+            allOf:
+            - $ref: '#/definitions/middleware.Response'
+            - properties:
+                data:
+                  type: string
+              type: object
+      security:
+      - Bearer: []
+      summary: 创建文档
+      tags:
+      - 文档
+  /v1/doc/delete:
+    post:
+      consumes:
+      - application/json
+      description: 删除指定的文档
+      parameters:
+      - description: 删除文档请求
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/model.DeleteMvDocReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 删除成功
+          schema:
+            $ref: '#/definitions/middleware.Response'
+      security:
+      - Bearer: []
+      summary: 删除文档
+      tags:
+      - 文档
+  /v1/doc/get:
+    get:
+      consumes:
+      - application/json
+      description: 获取文档的详细信息
+      parameters:
+      - in: query
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 获取成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/middleware.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.GetMvDocRes'
+              type: object
+      security:
+      - Bearer: []
+      summary: 获取文档详情
+      tags:
+      - 文档
+  /v1/doc/list:
+    get:
+      consumes:
+      - application/json
+      description: 分页查询文档列表，支持按项目、文件夹筛选
+      parameters:
+      - in: query
+        name: folderId
+        type: string
+      - in: query
+        name: keyword
+        type: string
+      - in: query
+        name: page
+        type: integer
+      - in: query
+        name: projectId
+        type: string
+      - in: query
+        name: size
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 查询成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/middleware.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.ListMvDocRes'
+              type: object
+      security:
+      - Bearer: []
+      summary: 查询文档列表
+      tags:
+      - 文档
+  /v1/doc/update:
+    post:
+      consumes:
+      - application/json
+      description: 更新文档信息
+      parameters:
+      - description: 更新文档请求
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/model.UpdateMvDocReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 更新成功
+          schema:
+            $ref: '#/definitions/middleware.Response'
+      security:
+      - Bearer: []
+      summary: 更新文档
+      tags:
+      - 文档
+  /v1/field/create:
+    post:
+      consumes:
+      - application/json
+      description: 创建新的表格字段。必填字段：tableSchemaId（表格ID）、title（字段标题）、type（字段类型）。其他字段会自动放入config中。
+      parameters:
+      - description: 创建字段请求
+        in: body
+        name: request
+        required: true
+        schema:
+          additionalProperties: true
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 创建成功 返回字段
+          schema:
+            allOf:
+            - $ref: '#/definitions/middleware.Response'
+            - properties:
+                data:
+                  type: string
+              type: object
+      security:
+      - Bearer: []
+      summary: 创建字段
+      tags:
+      - 字段
+  /v1/field/delete:
+    post:
+      consumes:
+      - application/json
+      description: 删除表格字段
+      parameters:
+      - description: 删除字段请求
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/model.DeleteMvFieldReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 删除成功
+          schema:
+            $ref: '#/definitions/middleware.Response'
+      security:
+      - Bearer: []
+      summary: 删除字段
+      tags:
+      - 字段
+  /v1/field/list:
+    get:
+      consumes:
+      - application/json
+      description: 根据表格ID获取字段列表
+      parameters:
+      - in: query
+        name: tableSchemaId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 获取成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/middleware.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.GetMvFieldListRes'
+              type: object
+      security:
+      - Bearer: []
+      summary: 获取字段列表
+      tags:
+      - 字段
+  /v1/field/sort:
+    post:
+      consumes:
+      - application/json
+      description: 按字段ID列表重排表格字段顺序
+      parameters:
+      - description: 排序请求
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/model.SortMvFieldReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 排序成功
+          schema:
+            $ref: '#/definitions/middleware.Response'
+      security:
+      - Bearer: []
+      summary: 字段排序
+      tags:
+      - 字段
+  /v1/field/update:
+    post:
+      consumes:
+      - application/json
+      description: 更新表格字段信息。必填字段：id（字段ID）、title（字段标题）、type（字段类型）。其他字段会自动放入config中。
+      parameters:
+      - description: 更新字段请求
+        in: body
+        name: request
+        required: true
+        schema:
+          additionalProperties: true
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 更新成功
+          schema:
+            $ref: '#/definitions/middleware.Response'
+      security:
+      - Bearer: []
+      summary: 更新字段
+      tags:
+      - 字段
+  /v1/file/upload:
+    post:
+      consumes:
+      - multipart/form-data
+      description: 上传文件到OSS
+      parameters:
+      - description: 文件
+        in: formData
+        name: file
+        required: true
+        type: file
+      - description: 备注
+        in: formData
+        name: remark
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 上传成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/middleware.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.UploadRes'
+              type: object
+      security:
+      - Bearer: []
+      summary: 文件上传
+      tags:
+      - 文件
+  /v1/folder/all-nodes:
+    get:
+      consumes:
+      - application/json
+      description: 查询指定项目下的所有节点（文件夹、表格、仪表盘和文档），以树状结构返回
+      parameters:
+      - in: query
+        name: projectId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 查询成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/middleware.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.QuerySubNodeRes'
+              type: object
+      security:
+      - Bearer: []
+      summary: 查询所有节点
+      tags:
+      - 文件夹
+  /v1/folder/create:
+    post:
+      consumes:
+      - application/json
+      description: 创建新的文件夹
+      parameters:
+      - description: 创建文件夹请求
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/model.CreateMvFolderReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 创建成功
+          schema:
+            $ref: '#/definitions/middleware.Response'
+      security:
+      - Bearer: []
+      summary: 创建文件夹
+      tags:
+      - 文件夹
+  /v1/folder/delete:
+    post:
+      consumes:
+      - application/json
+      description: 删除文件夹
+      parameters:
+      - description: 删除文件夹请求
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/model.DeleteMvFolderReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 删除成功
+          schema:
+            $ref: '#/definitions/middleware.Response'
+      security:
+      - Bearer: []
+      summary: 删除文件夹
+      tags:
+      - 文件夹
+  /v1/folder/list:
+    get:
+      consumes:
+      - application/json
+      description: 根据项目ID查询该项目下所有文件夹，返回扁平结构列表
+      parameters:
+      - in: query
+        name: projectId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 查询成功，返回扁平文件夹列表
+          schema:
+            allOf:
+            - $ref: '#/definitions/middleware.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.QueryFolderListRes'
+              type: object
+      security:
+      - Bearer: []
+      summary: 查询项目下所有文件夹（扁平列表）
+      tags:
+      - 文件夹
+  /v1/folder/move:
+    post:
+      consumes:
+      - application/json
+      description: 将文件夹、数据表、仪表盘或文档移动到目标文件夹，targetFolderId为空字符串表示移动到根目录
+      parameters:
+      - description: 移动节点请求
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/model.MoveNodeReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 移动成功
+          schema:
+            $ref: '#/definitions/middleware.Response'
+      security:
+      - Bearer: []
+      summary: 移动节点
+      tags:
+      - 文件夹
+  /v1/folder/search:
+    get:
+      consumes:
+      - application/json
+      description: 根据关键字模糊搜索文件夹、表格、仪表盘与文档，返回树状结构
+      parameters:
+      - in: query
+        name: keyword
+        required: true
+        type: string
+      - in: query
+        name: projectId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 搜索成功，返回树状结构
+          schema:
+            allOf:
+            - $ref: '#/definitions/middleware.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.SearchRes'
+              type: object
+      security:
+      - Bearer: []
+      summary: 搜索文件夹、表格、仪表盘与文档
+      tags:
+      - 文件夹
+  /v1/folder/subquery:
+    get:
+      consumes:
+      - application/json
+      description: 查询指定父节点下的子节点（文件夹、表格、仪表盘和文档）
+      parameters:
+      - in: query
+        name: parentId
+        type: string
+      - in: query
+        name: projectId
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 查询成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/middleware.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.QuerySubNodeRes'
+              type: object
+      security:
+      - Bearer: []
+      summary: 查询子节点
+      tags:
+      - 文件夹
+  /v1/folder/update:
+    post:
+      consumes:
+      - application/json
+      description: 更新文件夹信息
+      parameters:
+      - description: 更新文件夹请求
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/model.UpdateMvFolderReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 更新成功
+          schema:
+            $ref: '#/definitions/middleware.Response'
+      security:
+      - Bearer: []
+      summary: 更新文件夹
+      tags:
+      - 文件夹
+  /v1/form/submit:
+    post:
+      consumes:
+      - application/json
+      description: 提交MV视图表单数据
+      parameters:
+      - description: 提交表单请求
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/model.SubmitFormReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 提交成功
+          schema:
+            $ref: '#/definitions/middleware.Response'
+      security:
+      - Bearer: []
+      summary: 提交表单
+      tags:
+      - 表单提交
+  /v1/project/advanced-perm/disable:
+    post:
+      consumes:
+      - application/json
+      description: 关闭项目高级权限
+      parameters:
+      - description: 关闭项目高级权限请求
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/model.DisableMvProjectAdvancedPermReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 关闭成功
+          schema:
+            $ref: '#/definitions/middleware.Response'
+      security:
+      - Bearer: []
+      summary: 关闭项目高级权限
+      tags:
+      - 项目高级权限
+  /v1/project/advanced-perm/enable:
+    post:
+      consumes:
+      - application/json
+      description: 开启项目高级权限
+      parameters:
+      - description: 开启项目高级权限请求
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/model.EnableMvProjectAdvancedPermReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 开启成功
+          schema:
+            $ref: '#/definitions/middleware.Response'
+      security:
+      - Bearer: []
+      summary: 开启项目高级权限
+      tags:
+      - 项目高级权限
+  /v1/project/advanced-perm/get:
+    get:
+      consumes:
+      - application/json
+      description: 获取项目高级权限
+      parameters:
+      - in: query
+        name: role
+        required: true
+        type: string
+      - in: query
+        name: tableSchemaId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 获取成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/middleware.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.GetMvProjectAdvancedPermRes'
+              type: object
+      security:
+      - Bearer: []
+      summary: 获取项目高级权限
+      tags:
+      - 项目高级权限
+  /v1/project/advanced-perm/update:
+    put:
+      consumes:
+      - application/json
+      description: 更新项目高级权限
+      parameters:
+      - description: 更新项目高级权限请求
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/model.UpdateMvProjectAdvancedPermReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 更新成功
+          schema:
+            $ref: '#/definitions/middleware.Response'
+      security:
+      - Bearer: []
+      summary: 更新项目高级权限
+      tags:
+      - 项目高级权限
+  /v1/project/create:
+    post:
+      consumes:
+      - application/json
+      description: 创建新的MV项目
+      parameters:
+      - description: 创建项目请求
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/model.CreateMvProjectReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 创建成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/middleware.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.CreateMvProjectRes'
+              type: object
+      security:
+      - Bearer: []
+      summary: 创建项目
+      tags:
+      - 项目
+  /v1/project/delete:
+    post:
+      consumes:
+      - application/json
+      description: 删除MV项目
+      parameters:
+      - description: 删除项目请求
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/model.DeleteMvProjectReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 删除成功
+          schema:
+            $ref: '#/definitions/middleware.Response'
+      security:
+      - Bearer: []
+      summary: 删除项目
+      tags:
+      - 项目
+  /v1/project/favorite/set:
+    post:
+      consumes:
+      - application/json
+      description: 设置MV项目为收藏或取消收藏
+      parameters:
+      - description: 设置收藏请求
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/model.SetFavoriteProjectReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 设置成功
+          schema:
+            $ref: '#/definitions/middleware.Response'
+      security:
+      - Bearer: []
+      summary: 设置项目为收藏或取消收藏
+      tags:
+      - 项目
+  /v1/project/get:
+    get:
+      consumes:
+      - application/json
+      description: 获取MV项目的详细信息
+      parameters:
+      - in: query
+        name: projectId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 获取成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/middleware.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.GetProjectRes'
+              type: object
+      security:
+      - Bearer: []
+      summary: 获取项目详情
+      tags:
+      - 项目
+  /v1/project/member/batch-create:
+    post:
+      consumes:
+      - application/json
+      description: 批量向项目添加协作者，设置成员的权限（read/edit/manage）
+      parameters:
+      - description: 批量创建成员请求
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/model.BatchCreateMemberReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 创建成功
+          schema:
+            $ref: '#/definitions/middleware.Response'
+      security:
+      - Bearer: []
+      summary: 批量创建项目成员
+      tags:
+      - 项目权限
+  /v1/project/member/delete:
+    post:
+      consumes:
+      - application/json
+      description: 从项目中移除协作者
+      parameters:
+      - description: 删除成员请求
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/mvtable_internal_app_mv_project_perm_model.DeleteMemberReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 删除成功
+          schema:
+            $ref: '#/definitions/middleware.Response'
+      security:
+      - Bearer: []
+      summary: 删除项目成员
+      tags:
+      - 项目权限
+  /v1/project/member/list:
+    get:
+      consumes:
+      - application/json
+      description: 获取项目中所有成员（用户/团队）及其角色
+      parameters:
+      - description: 项目ID
+        in: query
+        name: projectId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 查询成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/middleware.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.ProjectMemberListRes'
+              type: object
+      security:
+      - Bearer: []
+      summary: 查询项目成员列表
+      tags:
+      - 项目权限
+  /v1/project/member/search:
+    get:
+      consumes:
+      - application/json
+      description: 根据昵称模糊匹配或者根据邮箱完全匹配
+      parameters:
+      - description: 项目ID
+        in: query
+        name: projectId
+        required: true
+        type: string
+      - description: 搜索关键词
+        in: query
+        name: keywords
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 搜索成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/middleware.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.SearchMemberRes'
+              type: object
+      security:
+      - Bearer: []
+      summary: 搜索非当前项目的成员
+      tags:
+      - 项目权限
+  /v1/project/member/update:
+    post:
+      consumes:
+      - application/json
+      description: 更新项目协作者的权限类型（read/edit/manage）
+      parameters:
+      - description: 更新成员请求
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/mvtable_internal_app_mv_project_perm_model.UpdateMemberReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 更新成功
+          schema:
+            $ref: '#/definitions/middleware.Response'
+      security:
+      - Bearer: []
+      summary: 更新项目成员权限
+      tags:
+      - 项目权限
+  /v1/project/node/create:
+    post:
+      consumes:
+      - application/json
+      description: '在指定项目和文件夹下创建节点，type: table（创建数据表及表格视图）、form（创建数据表及表单视图）、dashboard（创建仪表盘）、folder（创建文件夹）、doc（创建文档）'
+      parameters:
+      - description: 创建项目节点请求
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/model.CreateProjectNodeReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 创建成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/middleware.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.CreateProjectNodeRes'
+              type: object
+      security:
+      - Bearer: []
+      summary: 在项目下创建节点
+      tags:
+      - 项目
+  /v1/project/node/rename:
+    post:
+      consumes:
+      - application/json
+      description: 根据类型对项目下的 folder / table / form / dashboard / doc 进行重命名
+      parameters:
+      - description: 重命名项目节点请求
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/model.RenameProjectNodeReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 重命名成功
+          schema:
+            $ref: '#/definitions/middleware.Response'
+      security:
+      - Bearer: []
+      summary: 重命名项目节点
+      tags:
+      - 项目
+  /v1/project/query:
+    get:
+      consumes:
+      - application/json
+      description: 根据类型查询MV项目列表
+      parameters:
+      - in: query
+        name: page
+        type: integer
+      - in: query
+        name: size
+        type: integer
+      - description: '查询项目类型: 1=最近访问 2=我创建的 3=我参与的 4=我收藏的'
+        enum:
+        - 1
+        - 2
+        - 3
+        - 4
+        in: query
+        name: type
+        required: true
+        type: integer
+        x-enum-varnames:
+        - QueryProjectRecently
+        - QueryProjectCreated
+        - QueryProjectShared
+        - QueryProjectFavorite
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 查询成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/middleware.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.QueryProjectRes'
+              type: object
+      security:
+      - Bearer: []
+      summary: 查询项目列表
+      tags:
+      - 项目
+  /v1/project/state/set:
+    post:
+      consumes:
+      - application/json
+      description: 设置项目分享范围
+      parameters:
+      - description: 设置分享范围请求
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/model.SetShareRangeReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 设置成功
+          schema:
+            $ref: '#/definitions/middleware.Response'
+      security:
+      - Bearer: []
+      summary: 设置分享范围
+      tags:
+      - 项目
+  /v1/project/tables:
+    get:
+      consumes:
+      - application/json
+      description: 根据项目ID获取该项目下的所有数据表列表
+      parameters:
+      - in: query
+        name: projectId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 获取成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/middleware.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.GetProjectTablesRes'
+              type: object
+      security:
+      - Bearer: []
+      summary: 获取项目下的所有数据表
+      tags:
+      - 项目
+  /v1/project/update:
+    post:
+      consumes:
+      - application/json
+      description: 更新MV项目信息
+      parameters:
+      - description: 更新项目请求
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/model.UpdateMvProjectReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 更新成功
+          schema:
+            $ref: '#/definitions/middleware.Response'
+      security:
+      - Bearer: []
+      summary: 更新项目
+      tags:
+      - 项目
+  /v1/record/cell/update:
+    post:
+      consumes:
+      - application/json
+      description: 更新表格记录中指定字段的单元格值
+      parameters:
+      - description: 更新单元格请求
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/model.UpdateCellReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 更新成功
+          schema:
+            $ref: '#/definitions/middleware.Response'
+      security:
+      - Bearer: []
+      summary: 更新单元格
+      tags:
+      - 记录
+  /v1/record/delete:
+    post:
+      consumes:
+      - application/json
+      description: 批量删除指定的记录行
+      parameters:
+      - description: 删除记录请求
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/model.DeleteRecordsReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 删除成功
+          schema:
+            $ref: '#/definitions/middleware.Response'
+      security:
+      - Bearer: []
+      summary: 删除多行记录
+      tags:
+      - 记录
+  /v1/record/get:
+    get:
+      consumes:
+      - application/json
+      description: 根据表格ID和记录ID获取单条完整记录数据
+      parameters:
+      - description: 表格ID
+        in: query
+        name: tableSchemaId
+        required: true
+        type: string
+      - description: 记录ID
+        in: query
+        name: recordId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 获取成功
+          schema:
+            $ref: '#/definitions/middleware.Response'
+      security:
+      - Bearer: []
+      summary: 获取单条记录
+      tags:
+      - 记录
+  /v1/record/import:
+    post:
+      consumes:
+      - multipart/form-data
+      description: 从 CSV 或 Excel 文件导入数据到表格，文件第一行为标题，根据标题名称匹配字段
+      parameters:
+      - description: 表格ID
+        in: formData
+        name: tableSchemaId
+        required: true
+        type: string
+      - description: 导入文件（CSV 或 Excel）
+        in: formData
+        name: file
+        required: true
+        type: file
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 导入成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/middleware.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.ImportRecordsRes'
+              type: object
+      security:
+      - Bearer: []
+      summary: 导入记录
+      tags:
+      - 记录
+  /v1/record/insert:
+    post:
+      consumes:
+      - application/json
+      description: 在指定表格中插入新的记录行，支持指定在前一条记录之后插入
+      parameters:
+      - description: 插入记录请求
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/model.InsertMvRecordReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 插入成功
+          schema:
+            $ref: '#/definitions/middleware.Response'
+      security:
+      - Bearer: []
+      summary: 插入记录
+      tags:
+      - 记录
+  /v1/record/list:
+    get:
+      consumes:
+      - application/json
+      description: 根据表格ID获取该表格的所有完整记录数据
+      parameters:
+      - description: 表格ID
+        in: query
+        name: tableSchemaId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 获取成功
+          schema:
+            $ref: '#/definitions/middleware.Response'
+      security:
+      - Bearer: []
+      summary: 获取表格所有记录（不进行筛选，只返回记录列表）
+      tags:
+      - 记录
+  /v1/record/options:
+    get:
+      consumes:
+      - application/json
+      description: 根据表格ID获取该表格的所有记录，返回id和第一个字段值的选项列表
+      parameters:
+      - description: 表格ID
+        in: query
+        name: tableSchemaId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 获取成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/middleware.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.GetRecordOptionsRes'
+              type: object
+      security:
+      - Bearer: []
+      summary: 获取表格记录选项列表
+      tags:
+      - 记录
+  /v1/record/row/update:
+    post:
+      consumes:
+      - application/json
+      description: '更新表格记录中多个字段的值 {"rowId": "", "field1Id": "", "field2Id": ""}'
+      parameters:
+      - description: 更新记录请求
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/model.UpdateRowReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 更新成功
+          schema:
+            $ref: '#/definitions/middleware.Response'
+      security:
+      - Bearer: []
+      summary: 更新整条记录
+      tags:
+      - 记录
+  /v1/record/sort:
+    post:
+      consumes:
+      - application/json
+      description: 更新表格记录行的排序顺序，根据前后记录的位置计算新的排序索引
+      parameters:
+      - description: 保存排序请求
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/model.SaveRowSortReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 保存成功
+          schema:
+            $ref: '#/definitions/middleware.Response'
+      security:
+      - Bearer: []
+      summary: 保存行排序
+      tags:
+      - 记录
+  /v1/rich-text/get:
+    get:
+      consumes:
+      - application/json
+      description: 根据记录ID和字段ID获取富文本内容
+      parameters:
+      - description: 记录ID
+        in: query
+        name: recordId
+        required: true
+        type: string
+      - description: 字段ID
+        in: query
+        name: fieldId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 获取成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/middleware.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.GetRichTextContentRes'
+              type: object
+      security:
+      - Bearer: []
+      summary: 获取富文本内容
+      tags:
+      - 记录
+  /v1/table/copy:
+    post:
+      consumes:
+      - application/json
+      description: 根据源表ID和复制范围，复制表格结构，支持选择是否复制所有记录
+      parameters:
+      - description: 复制表格请求
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/model.CopyMvTableSchemaReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 复制成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/middleware.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.CopyMvTableSchemaRes'
+              type: object
+      security:
+      - Bearer: []
+      summary: 复制表格
+      tags:
+      - 表格
+  /v1/table/create:
+    post:
+      consumes:
+      - application/json
+      description: 创建新的表格schema
+      parameters:
+      - description: 创建表格请求
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/model.CreateMvTableSchemaReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 创建成功，data字段为表格ID
+          schema:
+            allOf:
+            - $ref: '#/definitions/middleware.Response'
+            - properties:
+                data:
+                  type: string
+              type: object
+      security:
+      - Bearer: []
+      summary: 创建表格
+      tags:
+      - 表格
+  /v1/table/delete:
+    post:
+      consumes:
+      - application/json
+      description: 删除表格schema
+      parameters:
+      - description: 删除表格请求
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/model.DeleteMvTableSchemaReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 删除成功
+          schema:
+            $ref: '#/definitions/middleware.Response'
+      security:
+      - Bearer: []
+      summary: 删除表格
+      tags:
+      - 表格
+  /v1/table/get:
+    get:
+      consumes:
+      - application/json
+      description: 获取表格的完整数据，包括字段和记录
+      parameters:
+      - in: query
+        name: viewId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 获取成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/middleware.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.GetTableDataRes'
+              type: object
+      security:
+      - Bearer: []
+      summary: 获取表格数据
+      tags:
+      - 表格
+  /v1/table/update:
+    post:
+      consumes:
+      - application/json
+      description: 更新表格schema信息
+      parameters:
+      - description: 更新表格请求
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/model.UpdateMvTableSchemaReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 更新成功
+          schema:
+            $ref: '#/definitions/middleware.Response'
+      security:
+      - Bearer: []
+      summary: 更新表格
+      tags:
+      - 表格
+  /v1/team/add-member:
+    post:
+      consumes:
+      - application/json
+      description: 向团队添加新成员
+      parameters:
+      - description: 添加成员请求
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/model.AddMemberReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 添加成功
+          schema:
+            $ref: '#/definitions/middleware.Response'
+      security:
+      - Bearer: []
+      summary: 添加团队成员
+      tags:
+      - 团队
+  /v1/team/batch-get-users:
+    post:
+      consumes:
+      - application/json
+      description: 根据用户ID列表批量查询用户信息
+      parameters:
+      - description: 批量查询用户请求
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/model.BatchGetUsersReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 查询成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/middleware.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.BatchGetUsersRes'
+              type: object
+      security:
+      - Bearer: []
+      summary: 批量查询用户
+      tags:
+      - 团队
+  /v1/team/create:
+    post:
+      consumes:
+      - application/json
+      description: 创建新的团队
+      parameters:
+      - description: 创建团队请求
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/model.CreateTeamReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 创建成功
+          schema:
+            $ref: '#/definitions/middleware.Response'
+      security:
+      - Bearer: []
+      summary: 创建团队
+      tags:
+      - 团队
+  /v1/team/delete:
+    post:
+      consumes:
+      - application/json
+      description: 删除团队
+      parameters:
+      - description: 删除团队请求
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/model.DeleteTeamReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 删除成功
+          schema:
+            $ref: '#/definitions/middleware.Response'
+      security:
+      - Bearer: []
+      summary: 删除团队
+      tags:
+      - 团队
+  /v1/team/delete-member:
+    post:
+      consumes:
+      - application/json
+      description: 从团队中删除成员
+      parameters:
+      - description: 删除成员请求
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/mvtable_internal_app_team_model.DeleteMemberReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 删除成功
+          schema:
+            $ref: '#/definitions/middleware.Response'
+      security:
+      - Bearer: []
+      summary: 删除团队成员
+      tags:
+      - 团队
+  /v1/team/list:
+    get:
+      consumes:
+      - application/json
+      description: 获取当前用户的团队列表
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 获取成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/middleware.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.ListTeamReq'
+              type: object
+      security:
+      - Bearer: []
+      summary: 获取团队列表
+      tags:
+      - 团队
+  /v1/team/member-list:
+    get:
+      consumes:
+      - application/json
+      description: 获取团队成员列表
+      parameters:
+      - description: 团队ID
+        in: query
+        name: teamId
+        required: true
+        type: string
+      - description: 搜索关键词
+        in: query
+        name: searchWord
+        type: string
+      - default: 1
+        description: 页码
+        in: query
+        name: page
+        type: integer
+      - default: 10
+        description: 每页数量
+        in: query
+        name: size
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 获取成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/middleware.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.GetMemberListRes'
+              type: object
+      security:
+      - Bearer: []
+      summary: 获取团队成员列表
+      tags:
+      - 团队
+  /v1/team/search-user:
+    get:
+      consumes:
+      - application/json
+      description: 根据邮箱或昵称搜索用户
+      parameters:
+      - description: 搜索关键词
+        in: query
+        name: searchWord
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 搜索成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/middleware.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.SearchUserRes'
+              type: object
+      security:
+      - Bearer: []
+      summary: 搜索用户
+      tags:
+      - 团队
+  /v1/team/update:
+    post:
+      consumes:
+      - application/json
+      description: 更新团队信息
+      parameters:
+      - description: 更新团队请求
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/model.UpdateTeamReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 更新成功
+          schema:
+            $ref: '#/definitions/middleware.Response'
+      security:
+      - Bearer: []
+      summary: 更新团队
+      tags:
+      - 团队
+  /v1/team/update-member:
+    post:
+      consumes:
+      - application/json
+      description: 更新团队成员信息
+      parameters:
+      - description: 更新成员请求
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/mvtable_internal_app_team_model.UpdateMemberReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 更新成功
+          schema:
+            $ref: '#/definitions/middleware.Response'
+      security:
+      - Bearer: []
+      summary: 更新团队成员
+      tags:
+      - 团队
+  /v1/template-project/query:
+    get:
+      consumes:
+      - application/json
+      description: 获取模板项目列表，支持分页和按标签筛选
+      parameters:
+      - in: query
+        name: page
+        type: integer
+      - in: query
+        name: size
+        type: integer
+      - in: query
+        name: tag
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 查询成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/middleware.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.QueryMvTemplateProjectRes'
+              type: object
+      security:
+      - Bearer: []
+      summary: 查询模板项目列表
+      tags:
+      - 项目模版
+  /v1/template-tag/query:
+    get:
+      consumes:
+      - application/json
+      description: 获取模板标签列表，支持搜索
+      parameters:
+      - description: 搜索关键词
+        in: query
+        name: searchWord
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 查询成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/middleware.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.QueryMvTemplateTagRes'
+              type: object
+      security:
+      - Bearer: []
+      summary: 查询模板标签列表
+      tags:
+      - 项目模版
+  /v1/user/info:
+    get:
+      consumes:
+      - application/json
+      description: 获取当前登录用户信息
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 获取成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/middleware.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.UserResponse'
+              type: object
+      security:
+      - Bearer: []
+      summary: 获取用户信息
+      tags:
+      - 用户
+  /v1/user/password/reset:
+    post:
+      consumes:
+      - application/json
+      description: 重置当前用户密码
+      parameters:
+      - description: 重置密码请求
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/model.ResetPasswordReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 重置成功
+          schema:
+            $ref: '#/definitions/middleware.Response'
+      security:
+      - Bearer: []
+      summary: 重置密码
+      tags:
+      - 用户
+  /v1/user/update:
+    post:
+      consumes:
+      - application/json
+      description: 更新当前登录用户信息
+      parameters:
+      - description: 更新请求
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/model.UpdateInfoReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 更新成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/middleware.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.UserResponse'
+              type: object
+      security:
+      - Bearer: []
+      summary: 更新用户信息
+      tags:
+      - 用户
+  /v1/view/board/update:
+    post:
+      consumes:
+      - application/json
+      description: |-
+        更新MV视图看板信息
+        showFieldTitle: 是否显示字段标题
+        filterConfig: [{fieldId: "字段id", operator: "equal=等于/notEqual=不等于/contains=包含/notContains=不包含/null=为空/notNull=不为空/before=早于/after=晚于/beforeOrEqual=早于或等于/afterOrEqual=晚于或等于", value: "值"}]
+        groupConfig: {fieldId: ""}
+        sortConfig: [{fieldId: "", order: "asc/desc"}]
+      parameters:
+      - description: 更新视图看板请求
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/model.UpdateMvViewBoardReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 更新成功
+          schema:
+            $ref: '#/definitions/middleware.Response'
+      security:
+      - Bearer: []
+      summary: 更新视图看板
+      tags:
+      - 视图看板
+  /v1/view/create:
+    post:
+      consumes:
+      - application/json
+      description: 创建新的MV视图
+      parameters:
+      - description: 创建视图请求
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/model.CreateMvViewReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 创建成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/middleware.Response'
+            - properties:
+                data:
+                  type: string
+              type: object
+      security:
+      - Bearer: []
+      summary: 创建视图
+      tags:
+      - 视图
+  /v1/view/delete:
+    post:
+      consumes:
+      - application/json
+      description: 删除MV视图
+      parameters:
+      - description: 删除视图请求
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/model.DeleteMvViewReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 删除成功
+          schema:
+            $ref: '#/definitions/middleware.Response'
+      security:
+      - Bearer: []
+      summary: 删除视图
+      tags:
+      - 视图
+  /v1/view/form/update:
+    post:
+      consumes:
+      - application/json
+      description: 更新MV视图表单信息
+      parameters:
+      - description: 更新视图表单请求
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/model.UpdateMvViewFormReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 更新成功
+          schema:
+            $ref: '#/definitions/middleware.Response'
+      security:
+      - Bearer: []
+      summary: 更新视图表单
+      tags:
+      - 视图表单
+  /v1/view/get:
+    get:
+      consumes:
+      - application/json
+      description: 根据视图ID获取视图详情信息
+      parameters:
+      - in: query
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 获取成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/middleware.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.GetMvViewRes'
+              type: object
+      security:
+      - Bearer: []
+      summary: 获取视图详情
+      tags:
+      - 视图
+  /v1/view/query:
+    get:
+      consumes:
+      - application/json
+      description: 根据表格ID查询视图列表
+      parameters:
+      - in: query
+        name: projectId
+        required: true
+        type: string
+      - in: query
+        name: tableSchemaId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 查询成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/middleware.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.QueryMvViewRes'
+              type: object
+      security:
+      - Bearer: []
+      summary: 查询视图列表
+      tags:
+      - 视图
+  /v1/view/switch-active:
+    post:
+      consumes:
+      - application/json
+      description: 切换指定表格的激活视图
+      parameters:
+      - description: 切换激活视图请求
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/model.SwitchActiveViewReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 切换成功
+          schema:
+            $ref: '#/definitions/middleware.Response'
+      security:
+      - Bearer: []
+      summary: 切换激活视图
+      tags:
+      - 视图
+  /v1/view/table/update:
+    post:
+      consumes:
+      - application/json
+      description: |-
+        更新MV视图表格信息
+        filterConfig: [{fieldId: "字段id", operator: "equal=等于/notEqual=不等于/contains=包含/notContains=不包含/null=为空/notNull=不为空/before=早于/after=晚于/beforeOrEqual=早于或等于/afterOrEqual=晚于或等于", value: "值"}]
+        groupConfig: {fieldId: "", order: "asc/desc"}
+        sortConfig: [{fieldId: "", order: "asc/desc"}]
+        rowHeight: 1=常规, 2=中等, 3=高, 4=超高
+        colorConfig: [{color: "#cccccc", scope: "cell/row/rowHeader/column", fieldId: "字段id", operator: "equal=等于/notEqual=不等于/greaterThan=大于/lessThan=小于/greaterThanOrEqual=大于等于/lessThanOrEqual=小于等于/contains=包含/notContains=不包含/null=为空/notNull=不为空/before=早于/after=晚于/beforeOrEqual=早于或等于/afterOrEqual=晚于或等于", value: "值"}]
+      parameters:
+      - description: 更新视图表格请求
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/model.UpdateMvViewTableReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 更新成功
+          schema:
+            $ref: '#/definitions/middleware.Response'
+      security:
+      - Bearer: []
+      summary: 更新视图表格
+      tags:
+      - 视图表格
+  /v1/view/update:
+    post:
+      consumes:
+      - application/json
+      description: 更新MV视图信息
+      parameters:
+      - description: 更新视图请求
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/model.UpdateMvViewReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 更新成功
+          schema:
+            $ref: '#/definitions/middleware.Response'
+      security:
+      - Bearer: []
+      summary: 更新视图
+      tags:
+      - 视图
+  /v1/website-config:
+    get:
+      consumes:
+      - application/json
+      description: 获取网站配置信息
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 获取成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/middleware.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.WebsiteConfigSchema'
+              type: object
+      summary: 获取网站配置
+      tags:
+      - 网站配置
+  /ws/collaboration:
+    get:
+      description: 建立 WebSocket 连接进行协同编辑
+      responses: {}
+      summary: WebSocket 协同编辑连接
+      tags:
+      - 协同编辑
+securityDefinitions:
+  Bearer:
+    description: '输入Bearer token进行认证，格式: Bearer {token}。例如: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...'
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"

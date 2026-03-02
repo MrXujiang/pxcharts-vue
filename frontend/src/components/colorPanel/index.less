@@ -1,0 +1,33 @@
+.color-picker-panel {
+    padding: 10px;
+
+    .color-row {
+        display: flex;
+        margin-bottom: 5px;
+
+        &:last-child {
+            margin-bottom: 0;
+        }
+
+        .color-item {
+            width: 24px;
+            height: 24px;
+            border-radius: 4px;
+            margin-right: 5px;
+            cursor: pointer;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            &:last-child {
+                margin-right: 0;
+            }
+
+            .check-icon {
+                font-size: 14px;
+                color: #000;
+            }
+        }
+    }
+}

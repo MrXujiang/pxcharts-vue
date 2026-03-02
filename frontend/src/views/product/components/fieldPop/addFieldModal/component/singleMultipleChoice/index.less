@@ -1,0 +1,86 @@
+.nav-bar {
+    height: 32px;
+    line-height: 32px;
+
+    .icon {
+        font-size: 16px;
+        color: #6e7286;
+    }
+}
+
+.sortable-container {
+    max-height: 320px;
+    overflow: scroll;
+
+    // 不显示滚动条
+    &::-webkit-scrollbar {
+        display: none;
+    }
+
+    .sortable-item {
+        margin-bottom: 8px;
+
+        .move-handle {
+            cursor: grab;
+            user-select: none;
+            width: 16px;
+            height: 100%;
+            flex-shrink: 0; // 防止拖拽手柄被压缩
+            margin-right: 8px;
+        }
+
+        .circle {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background-color: greenyellow;
+        }
+
+        .content {
+            margin: 0 8px;
+        }
+
+
+    }
+
+    .sortable-item:last-child {
+        margin-bottom: 0;
+    }
+
+
+
+}
+
+.add-option {
+    color: #0052d9;
+    font-size: 14px;
+    padding: 4px 0 0 0;
+
+    &:hover {
+        color: #0052d9;
+    }
+
+    span {
+        margin-left: 4px;
+    }
+}
+
+.sortable-ghost {
+    opacity: 0.5;
+    background: none;
+}
+
+.textarea {
+    :deep(.t-textarea__inner) {
+        border: none;
+        padding: 0;
+    }
+
+    :deep(.t-textarea__inner:focus) {
+        box-shadow: none;
+    }
+}
+
+.text-gray {
+    color: @font-col-gray;
+}

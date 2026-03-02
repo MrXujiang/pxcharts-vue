@@ -1,0 +1,67 @@
+server:
+  host: "0.0.0.0"
+  port: 8901
+  mode: "debug"
+  read_timeout: "30s"
+  write_timeout: "30s"
+  idle_timeout: "120s"
+
+database:
+  driver: "postgres"
+  host: "localhost"
+  port: 5432
+  database: "mvtable"
+  username: "postgres"
+  password: ""
+  charset: "utf8mb4"
+  max_idle_conns: 10
+  max_open_conns: 100
+  conn_max_lifetime: 3600
+  log_level: "info"
+
+redis:
+  host: "localhost"
+  port: 6379
+  password: ""
+  database: 0
+  pool_size: 10
+
+jwt:
+  secret: ""
+  access_time: "24h"
+  refresh_time: "168h"
+  issuer: "mvtable"
+
+log:
+  level: "debug"
+  format: ""
+  output: "stdout"
+  filename: "logs/server.log"
+  max_size: 100
+  max_age: 30
+  max_backups: 10
+  compress: true
+
+mail:
+  host: ""
+  port: 465
+  from_name: ""
+  from_mail: ""
+  user_name: ""
+  auth_code: ""
+
+oss:
+  provider: "aliyun"
+  minio_conf:
+    endpoint: ""
+    access_url: ""
+    access_key_id: ""
+    secret_access_key: ""
+    bucket_name: ""
+    use_ssl: false
+  aliyun_conf:
+    access_url: ""
+    region: ""
+    access_key_id: ""
+    access_key_secret: ""
+    bucket_name: ""
