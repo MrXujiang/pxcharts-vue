@@ -104,6 +104,11 @@ src/components/DataTable/
 └── TableConfig.vue       # 表格配置
 ```
 
+```
+src/components/multiTable/
+├── index.vue             # 多维表格
+```
+
 #### 2. 表单设计器
 
 **技术方案**：
